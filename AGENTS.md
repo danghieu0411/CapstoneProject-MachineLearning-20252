@@ -9,4 +9,5 @@ Follow the specifications and documentation in these files as sources to follow:
 Need to edit @Report.md to create final report
 Follow @Walkthrough.md to know what we have done and what to do next
 Report need to be as much specific as possible
+When you complete any task, commit and push on github, branch report
 

@@ -431,3 +431,101 @@ A Random Forest (RF) is an ensemble classifier consisting of $M = 100$ independe
 2.  **Random Feature Selection**: To reduce correlation between trees and improve generalization, at each split node in a decision tree, only a random subset of the 500 features is evaluated for the best split:
     $$m = \sqrt{k} = \sqrt{500} \approx 22 \text{ features}$$
 3.  **Classification Voting**: For a test image represented by its BoVW histogram $x \in \mathbb{R}^{500}$, each of the 100 decision trees outputs a binary vote (0 for Cat, 1 for Dog). The final prediction corresponds to the majority vote of the ensemble.
+
+#### 3.2. Model Structure
+
+The SIFT + BoVW + Random Forest classification pipeline is structured as follows:
+
+##### A. Hyperparameters
+*   **Scale-space and Keypoint Detection**: OpenCV's `SIFT_create()` default parameters.
+*   **Vocabulary Size ($k$)**: $500$ visual words (centroids) clustered using `MiniBatchKMeans`.
+*   **K-Means Parameters**: Batch size of $2048$ descriptors, `random_state=42`.
+*   **Feature Scaling**: Standardized using `StandardScaler` (subtracting mean and dividing by standard deviation).
+*   **Classifier**: `RandomForestClassifier` with $M = 100$ estimators, Gini impurity criterion, and `random_state=42`.
+
+##### B. Python Construction Code
+The following scikit-learn code defines the feature scaling and Random Forest training steps:
+
+```python
+# Scaling the BoVW histograms
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Model initialization and training
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train_scaled, y_train)
+```
+
+##### C. Model Diagram
+The detailed end-to-end data flow is depicted below:
+
+```
+Raw Image (256x256 Grayscale)
+           │
+           ▼
+[SIFT Descriptor Extraction] (Variable number of 128-dimensional vectors)
+           │
+           ▼
+[BoVW Quantization] (Map each descriptor to the nearest of 500 visual words)
+           │
+           ▼
+[L2-Normalization] (Generate a 500-dimensional normalized histogram)
+           │
+           ▼
+[StandardScaler] (Subtract mean and scale to unit variance)
+           │
+           ▼
+[Random Forest Classifier] (Ensemble of 100 Decision Trees)
+           │
+           ▼
+Predicted Probability / Class (Cat = 0, Dog = 1)
+```
+
+#### 3.3. Training Process
+
+The model was trained on a balanced subset of **3,200 training images** (sampled randomly from the 4,000-image subset).
+1.  **SIFT Feature Extraction**: For the 4,000 sampled images, a massive pool of 128-dimensional local descriptors was extracted using OpenCV.
+2.  **Vocabulary Generation**: `MiniBatchKMeans` with $k = 500$ clusters was fitted on the entire descriptor pool. Processing in batches of 2,048 descriptors allowed vocabulary training to converge in under 2 minutes on a standard CPU.
+3.  **Histogram Encoding**: Every image's descriptors were mapped to the visual dictionary to yield a 500-dimensional frequency histogram, which was then L2-normalized.
+4.  **Stratified Split & Scaling**: The 4,000 encoded histograms were partitioned using a stratified **80/20 train/test split** (3,200 train and 800 test samples). Features were scaled using `StandardScaler`.
+5.  **Random Forest Training**: The Random Forest classifier with 100 decision trees was fit on the scaled training features. Training is extremely fast on CPU (taking less than 5 seconds), as decision tree induction is highly parallelizable.
+
+#### 3.4. Validation and Test Results
+
+The model was evaluated on the held-out test set of **800 images** (containing 401 cats and 399 dogs) to ensure stratified representation.
+
+##### A. Performance Metrics
+The SIFT + BoVW + Random Forest pipeline achieved a final test accuracy of **$69.00\%$**. The detailed classification report is shown below:
+
+| Class | Precision | Recall | F1-Score | Support |
+| :--- | :---: | :---: | :---: | :---: |
+| **Cats (0)** | 0.66 | 0.77 | 0.71 | 401 |
+| **Dogs (1)** | 0.73 | 0.61 | 0.66 | 399 |
+| **Accuracy** | | | **0.69** | **800** |
+| **Macro Avg** | 0.70 | 0.69 | 0.69 | 800 |
+| **Weighted Avg** | 0.70 | 0.69 | 0.69 | 800 |
+
+##### B. Confusion Matrix Analysis
+Based on the recall rates and support size:
+*   **True Negatives (TN - Cats predicted as Cats)**: 309 images ($77\%$ recall).
+*   **False Positives (FP - Cats predicted as Dogs)**: 92 images.
+*   **False Negatives (FN - Dogs predicted as Cats)**: 156 images.
+*   **True Positives (TP - Dogs predicted as Dogs)**: 243 images ($61\%$ recall).
+
+The Random Forest classifier shows a strong bias towards classifying images as cats (predicting 465 cats vs. 335 dogs). This is likely because cats, having more varied but local texture patterns, frequently activate visual words that the ensemble trees heavily associate with the cat class.
+
+#### 3.5. Conclusion
+
+The SIFT + BoVW + Random Forest pipeline establishes a classical machine learning baseline with a test accuracy of **$69.00\%$**.
+
+##### A. Efficiency and Performance
+*   **Training Time**: The pipeline is highly CPU-efficient. SIFT extraction and clustering take approximately 3 minutes, while the Random Forest training takes seconds. No GPU is required, making this approach suitable for low-power edge nodes.
+*   **Memory Footprint**: Highly compact. The model only needs to store the K-Means centroids ($500 \times 128$ floats) and the 100 decision trees, which occupy very little RAM compared to deep learning models.
+
+##### B. Model Quality and Generalization
+*   Although local SIFT descriptors provide rotation and scale invariance, the final accuracy is capped at $69.00\%$ due to the **Bag of Visual Words encoding**.
+*   **Discarding Spatial Information**: Because BoVW only counts the frequencies of visual words, it acts as a "bag of features" and completely discards the spatial coordinates and structural layout of the keypoints. The model knows what textures are present (e.g., fur patterns) but not where they are situated, preventing it from understanding the overall shape of the animals.
