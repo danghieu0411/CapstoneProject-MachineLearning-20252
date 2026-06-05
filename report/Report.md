@@ -825,6 +825,9 @@ class ImageClassifier(ResNet18):
 ```
 
 ##### C. Model Layout and Dimensionality Changes
+
+![ResNet-18 Architecture](resnet18_architecture.png)
+
 The structural properties of the model are outlined below:
 
 | Layer Name | Block Structure | Input Size | Output Size | Input Channels | Output Channels | Shortcut Downsample |
