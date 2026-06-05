@@ -49,195 +49,21 @@ Traditional models utilizing handcrafted features require heavy CPU computation 
 Deep learning models leverage automated feature learning and are trained on GPUs (or with deep architectures), allowing them to scale to the full dataset:
 *   **Artificial Neural Network (ANN)**:
     *   **Preprocessing**: Resized to $64 \times 64$ pixels with 3-channel RGB colors, flattened into a 12,288-dimensional input vector.
-    *   **Data Split**: Stratified **80/20 split** on the full dataset for training and validation.
+    *   **Data Split**: Partitioned into **20,000 images** for training, **2,500 images** for validation, and **2,500 images** for testing.
 *   **CNN from Scratch**:
     *   **Preprocessing**: Resized to $224 \times 224$ pixels, 3-channel RGB. Data augmentation (Random Resized Crop, Horizontal Flip, Color Jitter) and ImageNet normalization were applied.
-    *   **Data Split**: Trained and validated on the full dataset with standard split partitions.
+    *   **Data Split**: Partitioned into **20,000 images** for training, **2,500 images** for validation, and **2,500 images** for testing.
 *   **Residual Network (ResNet-18)**:
     *   **Preprocessing**: Resized to $224 \times 224$ pixels, 3-channel RGB.
-    *   **Data Split**: The dataset was partitioned into **25,071 images** for training, **3,123 images** for validation, and **3,435 images** for testing.
+    *   **Data Split**: Partitioned into **20,000 images** for training, **2,500 images** for validation, and **2,500 images** for testing.
 
 ## III. Model and Training
 
 This section describes the mathematical foundations, architectural designs, training procedures, and test results for each of the five implemented models.
 
-### 1. Artificial Neural Network (ANN)
+### 1. HOG + Support Vector Machine (SVM)
 
 #### 1.1. Theoretical Background
-
-##### A. Limitations of Multi-Layer Perceptrons (MLPs) for Image Data
-A standard Artificial Neural Network (also referred to as a Multi-Layer Perceptron) consists of fully connected (Dense) layers. While highly effective for tabular datasets, ANNs face severe limitations when processing image data:
-1.  **Loss of Spatial Structure**: Images contain rich spatial correlation where neighboring pixels represent local features (edges, corners, textures). Before passing an image into a Dense layer, it must be flattened into a 1D vector. For an input image of size $64 \times 64 \times 3$, the flattening process yields a vector of length $12,288$:
-    $$X = [x_1, x_2, \dots, x_{12288}]$$
-    This linear transformation discards the 2D spatial arrangement, making it difficult for the network to detect local patterns.
-2.  **Parameter Explosion & Overfitting**: Because every input node connects to every neuron in the subsequent layer, the number of parameters grows rapidly. A Dense layer with $256$ neurons processing a $12,288$-dimensional vector requires:
-    $$12,288 \times 256 + 256 = 3,146,240 \text{ parameters}$$
-    Such a high parameter footprint makes the model highly susceptible to overfitting, especially on limited datasets.
-
-To mitigate these limits, techniques such as **Data Augmentation** (random horizontal flips, rotations, and zooms), **$L_2$ Regularization**, and **Dropout** are incorporated into the training pipeline.
-
-##### B. Mathematical Formulation of Neuron Operations
-Each artificial neuron performs a linear combination of its inputs, adds a bias term, and applies a non-linear activation function:
-$$z = W^T X + b$$
-Where:
-*   $X$ is the input vector.
-*   $W$ is the weight vector.
-*   $b$ is the bias.
-*   $z$ is the net input.
-
-![Neuron Operations](report/ann_neuron.png)
-
-To introduce non-linearity, the Rectified Linear Unit (ReLU) activation function is applied to the hidden layers:
-$$a = \max(0, z)$$
-ReLU is computationally efficient and helps alleviate the vanishing gradient problem.
-
-For the output layer, the **Softmax** function is utilized to generate a probability distribution over the $K = 2$ classes (Cat $= 0$, Dog $= 1$):
-$$P(y = i \mid X) = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}}$$
-Thus, the individual class probabilities are computed as:
-$$P(\text{Cat}) = \frac{e^{z_{\text{cat}}}}{e^{z_{\text{cat}}} + e^{z_{\text{dog}}}}$$
-$$P(\text{Dog}) = \frac{e^{z_{\text{dog}}}}{e^{z_{\text{cat}}} + e^{z_{\text{dog}}}}$$
-The final predicted class corresponds to the index with the maximum probability:
-$$\hat{y} = \operatorname{argmax}(P(\text{Cat}), P(\text{Dog}))$$
-
-##### C. Regularization and Dropout
-To control overfitting, the model minimizes a regularized loss function consisting of Sparse Categorical Cross-Entropy and an $L_2$ weight penalty:
-$$\mathcal{L}_{\text{total}} = -\frac{1}{N} \sum_{i=1}^{N} \log P(y_i \mid X_i) + \lambda \sum_{w} w^2$$
-Where:
-*   $N$ is the number of training samples.
-*   $y_i$ is the true label of sample $i$.
-*   $\lambda = 0.0005$ is the regularization coefficient (weight decay).
-
-Additionally, **Dropout** with a rate of $p = 0.4$ is applied after the hidden layer. During each training step, 40% of the neurons are randomly deactivated (ignored), forcing the network to learn redundant representations and reducing co-dependency between neurons.
-
-![ANN Data Pipeline](report/ann_data_pipeline.png)
-
-#### 1.2. Model Structure
-
-The Artificial Neural Network model is implemented using TensorFlow's Keras Sequential API. It includes data augmentation layers at the input to improve generalization, followed by flattening, a hidden dense layer with regularization, and a softmax output layer.
-
-![ANN Architecture](report/ann_architecture.png)
-
-##### A. Hyperparameters
-*   **Input Resolution**: $64 \times 64 \times 3$ (RGB)
-*   **Data Augmentation**:
-    *   Horizontal Flipping (`RandomFlip("horizontal")`)
-    *   Random Rotation (`RandomRotation(0.05)`)
-    *   Random Zoom (`RandomZoom(0.05)`)
-*   **Hidden Layer Neurons**: 256
-*   **Activation Function**: Rectified Linear Unit (ReLU) for the hidden layer, Softmax for the output layer.
-*   **Regularization**: L2 regularization on the hidden layer weights with $\lambda = 0.0005$.
-*   **Dropout Rate**: $0.4$ (applied after the hidden dense layer).
-*   **Output Classes**: 2 (Cat = 0, Dog = 1).
-
-##### B. Model Construction Code
-The following Keras code defines the architecture of the ANN model:
-
-```python
-model = tf.keras.models.Sequential([
-    tf.keras.layers.RandomFlip("horizontal", input_shape=(im_size, im_size, 3)),
-    tf.keras.layers.RandomRotation(0.05),
-    tf.keras.layers.RandomZoom(0.05),
-    tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(
-        256,
-        activation='relu',
-        kernel_regularizer=tf.keras.regularizers.l2(0.0005)
-    ),
-    tf.keras.layers.Dropout(0.4),
-    tf.keras.layers.Dense(2, activation='softmax')
-])
-```
-
-##### C. Model Diagram
-The information flow through the layers is represented as follows:
-
-```
-Input Image (64x64x3)
-        │
-        ▼
-[Data Augmentation] (Flip, Rotate, Zoom)
-        │
-        ▼
-[Flatten Layer] (Converts 64x64x3 tensor to 12,288 vector)
-        │
-        ▼
-[Dense Hidden Layer] (256 Neurons, ReLU, L2 Regularization λ=0.0005)
-        │
-        ▼
-[Dropout Layer] (Rate p=0.4)
-        │
-        ▼
-[Dense Output Layer] (2 Neurons, Softmax)
-        │
-        ▼
-Class Probabilities (Cat vs. Dog)
-```
-
-#### 1.3. Training Process
-
-##### A. Training Configuration and Callbacks
-The model is compiled and trained with the following optimization settings and callbacks:
-*   **Optimizer**: Adam with a learning rate of $\alpha = 0.0001$.
-*   **Loss Function**: Sparse Categorical Cross-Entropy.
-*   **Evaluation Metric**: Accuracy.
-*   **Batch Size**: 32.
-*   **Epochs**: 30.
-*   **Callbacks**:
-    *   `ReduceLROnPlateau`: Monitors validation loss (`val_loss`). If the validation loss does not improve for 2 consecutive epochs, the learning rate is halved ($\alpha_{\text{new}} = 0.5 \times \alpha_{\text{old}}$), with a minimum learning rate limit of $10^{-6}$.
-    *   `BestValAccuracyCheckpoint`: A checkpoint callback that monitors validation accuracy (`val_accuracy`). It saves the model state to `best_ann_model.keras` only when an improvement is detected, ensuring that the final evaluation uses the best model based on validation accuracy.
-
-##### B. Training Dynamics
-During training, the model processed a split of **20,000 training images**, **2,500 validation images**, and **2,500 test images** (using stratified splits from the dataset). The training metrics evolved as follows:
-*   In the first epoch, the model started with an accuracy of $54.31\%$ and a loss of $0.8860$, while the validation accuracy was $60.60\%$.
-*   The validation accuracy improved progressively, reaching its peak of **$65.20\%$** at epoch 25 with a validation loss of $0.6386$.
-*   At epoch 12, `ReduceLROnPlateau` reduced the learning rate to $5.00 \times 10^{-5}$ as validation loss stabilized. It was reduced again to $2.50 \times 10^{-5}$ at epoch 19, and to $1.25 \times 10^{-5}$ at epoch 22.
-*   The best model saved at epoch 25 (`best_ann_model.keras`) was used for final evaluation.
-
-![ANN Training Epochs](report/ann_training_epochs.png)
-![ANN Training Curves](report/ann_training_curves.png)
-
-#### 1.4. Validation and Test Results
-
-The saved best model was evaluated on the held-out test dataset of **2,500 images** (stratified split containing 1,250 cats and 1,250 dogs) to assess its generalization capability.
-
-##### A. Performance Metrics
-The model achieved a final test accuracy of **$64.48\%$** and a test loss of $0.6368$. The detailed classification report is shown below:
-
-| Class | Precision | Recall | F1-Score | Support |
-| :--- | :---: | :---: | :---: | :---: |
-| **Cats (0)** | 0.64 | 0.68 | 0.66 | 1250 |
-| **Dogs (1)** | 0.65 | 0.61 | 0.63 | 1250 |
-| **Accuracy** | | | **0.64** | **2500** |
-| **Macro Avg** | 0.65 | 0.64 | 0.64 | 2500 |
-| **Weighted Avg** | 0.65 | 0.64 | 0.64 | 2500 |
-
-##### B. Confusion Matrix Analysis
-Based on the recall rates and support size, the confusion matrix is derived as:
-*   **True Negatives (TN - Cats predicted as Cats)**: 850 images ($68\%$ recall).
-*   **False Positives (FP - Cats predicted as Dogs)**: 400 images.
-*   **False Negatives (FN - Dogs predicted as Cats)**: 488 images.
-*   **True Positives (TP - Dogs predicted as Dogs)**: 762 images ($61\%$ recall).
-
-The model shows a slight bias towards classifying images as cats (predicting 1,338 images as cats compared to 1,162 predicted as dogs).
-
-![ANN Confusion Matrix](report/ann_confusion_matrix.png)
-![ANN Classification Metrics](report/ann_classification_metrics.png)
-
-#### 1.5. Conclusion
-
-The ANN baseline model successfully establishes a classification baseline with an accuracy of **$64.48\%$**. 
-
-##### A. Efficiency and Performance
-*   **Training Time**: Training is computationally light compared to deep CNN architectures. Each epoch takes approximately 20 seconds on a standard GPU, allowing the entire 30-epoch cycle to complete in under 10 minutes.
-*   **Memory Footprint**: The parameter size of the model is relatively large (approximately 3.1 million parameters) due to the dense connection between the flattened 12,288-dimensional input vector and the 256-node hidden layer.
-
-##### B. Model Quality and Generalization
-*   Although regularizations like L2 weight decay ($\lambda = 0.0005$) and Dropout ($p = 0.4$) successfully prevented severe overfitting (as training and validation metrics tracked closely), the final classification accuracy remains low ($64.48\%$).
-*   This performance ceiling is a direct result of the flattening process, which destroys critical 2D spatial relationships between neighboring pixels. Consequently, the ANN struggles to extract abstract shapes and local features compared to models that utilize convolution and pooling operations.
-
-### 2. HOG + Support Vector Machine (SVM)
-
-#### 2.1. Theoretical Background
 
 ##### A. Histogram of Oriented Gradients (HOG) Feature Extraction
 Histogram of Oriented Gradients (HOG) is a traditional handcrafted feature descriptor used in computer vision to capture the shape and appearance of objects in an image. Unlike deep learning networks that learn features automatically, HOG explicitly models shapes by capturing edge directions and gradient distributions. The extraction pipeline consists of the following mathematical stages:
@@ -289,7 +115,7 @@ A Support Vector Machine is a supervised binary classifier that constructs an op
     $$w = w - \eta \frac{\partial \mathcal{L}_i}{\partial w}$$
     $$b = b - \eta \frac{\partial \mathcal{L}_i}{\partial b}$$
 
-#### 2.2. Model Structure
+#### 1.2. Model Structure
 
 The HOG + Support Vector Machine model is constructed as a pipeline where handcrafted features are extracted first, followed by a linear classification layer optimized via Stochastic Gradient Descent.
 
@@ -369,7 +195,7 @@ Input Grayscale Image (64x64)
 Class Sign Output (-1: Cat, +1: Dog)
 ```
 
-#### 2.3. Training Process
+#### 1.3. Training Process
 
 ![Grid Search Parameter Validation](report/svm_grid_search.png)
 
@@ -388,7 +214,7 @@ During the 500-iteration training run, the optimization progressed as follows:
 
 The SGD successfully converged without showing severe oscillations, showing that the learning rate $\eta = 0.0001$ combined with the weight decay $\lambda = 0.01$ was appropriate.
 
-#### 2.4. Validation and Test Results
+#### 1.4. Validation and Test Results
 
 The model was evaluated on a held-out test set of **800 images** (398 cats, 402 dogs).
 
@@ -414,7 +240,7 @@ Based on the metrics:
 
 The model performed slightly better on dogs than on cats, indicating that the rigid shape and texture patterns extracted by HOG are slightly more distinctive for dogs.
 
-#### 2.5. Conclusion
+#### 1.5. Conclusion
 
 ##### A. Efficiency and Performance
 *   **Training Time**: Extremely efficient on the CPU. Extracting the HOG features takes some time, but once computed, training the linear SVM via NumPy takes less than 1 minute on a modern CPU. No GPU resources are required.
@@ -423,9 +249,9 @@ The model performed slightly better on dogs than on cats, indicating that the ri
 ##### B. Model Quality and Generalization
 *   The limitations of this model stem from the handcrafted nature of HOG features. HOG cannot handle complex geometric deformations, high non-rigid poses (especially in cats), and background clutter as dynamically as neural networks.
 
-### 3. SIFT + Bag of Visual Words (BoVW) + Random Forest (RF)
+### 2. SIFT + Bag of Visual Words (BoVW) + Random Forest (RF)
 
-#### 3.1. Theoretical Background
+#### 2.1. Theoretical Background
 
 ##### A. Scale-Invariant Feature Transform (SIFT) Feature Extraction
 SIFT is a local feature descriptor that identifies and describes local keypoints in images. Unlike HOG, which represents global shape structure by aggregating gradients over cells, SIFT focuses on detecting distinctive local keypoints (such as corners, edges, and blobs) that are invariant to scaling, rotation, and partially invariant to lighting changes.
@@ -459,7 +285,7 @@ A Random Forest (RF) is an ensemble classifier consisting of $M = 100$ independe
     $$m = \sqrt{k} = \sqrt{500} \approx 22 \text{ features}$$
 3.  **Classification Voting**: For a test image represented by its BoVW histogram $x \in \mathbb{R}^{500}$, each of the 100 decision trees outputs a binary vote (0 for Cat, 1 for Dog). The final prediction corresponds to the majority vote of the ensemble.
 
-#### 3.2. Model Structure
+#### 2.2. Model Structure
 
 The SIFT + BoVW + Random Forest classification pipeline is structured as follows:
 
@@ -514,7 +340,7 @@ Raw Image (256x256 Grayscale)
 Predicted Probability / Class (Cat = 0, Dog = 1)
 ```
 
-#### 3.3. Training Process
+#### 2.3. Training Process
 
 The model was trained on a balanced subset of **3,200 training images** (sampled randomly from the 4,000-image subset).
 1.  **SIFT Feature Extraction**: For the 4,000 sampled images, a massive pool of 128-dimensional local descriptors was extracted using OpenCV.
@@ -523,7 +349,7 @@ The model was trained on a balanced subset of **3,200 training images** (sampled
 4.  **Stratified Split & Scaling**: The 4,000 encoded histograms were partitioned using a stratified **80/20 train/test split** (3,200 train and 800 test samples). Features were scaled using `StandardScaler`.
 5.  **Random Forest Training**: The Random Forest classifier with 100 decision trees was fit on the scaled training features. Training is extremely fast on CPU (taking less than 5 seconds), as decision tree induction is highly parallelizable.
 
-#### 3.4. Validation and Test Results
+#### 2.4. Validation and Test Results
 
 The model was evaluated on the held-out test set of **800 images** (containing 401 cats and 399 dogs) to ensure stratified representation.
 
@@ -549,7 +375,7 @@ Based on the recall rates and support size:
 
 The Random Forest classifier shows a strong bias towards classifying images as cats (predicting 465 cats vs. 335 dogs). This is likely because cats, having more varied but local texture patterns, frequently activate visual words that the ensemble trees heavily associate with the cat class.
 
-#### 3.5. Conclusion
+#### 2.5. Conclusion
 
 The SIFT + BoVW + Random Forest pipeline establishes a classical machine learning baseline with a test accuracy of **$69.00\%$**.
 
@@ -560,6 +386,180 @@ The SIFT + BoVW + Random Forest pipeline establishes a classical machine learnin
 ##### B. Model Quality and Generalization
 *   Although local SIFT descriptors provide rotation and scale invariance, the final accuracy is capped at $69.00\%$ due to the **Bag of Visual Words encoding**.
 *   **Discarding Spatial Information**: Because BoVW only counts the frequencies of visual words, it acts as a "bag of features" and completely discards the spatial coordinates and structural layout of the keypoints. The model knows what textures are present (e.g., fur patterns) but not where they are situated, preventing it from understanding the overall shape of the animals.
+
+### 3. Artificial Neural Network (ANN)
+
+#### 3.1. Theoretical Background
+
+##### A. Limitations of Multi-Layer Perceptrons (MLPs) for Image Data
+A standard Artificial Neural Network (also referred to as a Multi-Layer Perceptron) consists of fully connected (Dense) layers. While highly effective for tabular datasets, ANNs face severe limitations when processing image data:
+1.  **Loss of Spatial Structure**: Images contain rich spatial correlation where neighboring pixels represent local features (edges, corners, textures). Before passing an image into a Dense layer, it must be flattened into a 1D vector. For an input image of size $64 \times 64 \times 3$, the flattening process yields a vector of length $12,288$:
+    $$X = [x_1, x_2, \dots, x_{12288}]$$
+    This linear transformation discards the 2D spatial arrangement, making it difficult for the network to detect local patterns.
+2.  **Parameter Explosion & Overfitting**: Because every input node connects to every neuron in the subsequent layer, the number of parameters grows rapidly. A Dense layer with $256$ neurons processing a $12,288$-dimensional vector requires:
+    $$12,288 \times 256 + 256 = 3,146,240 \text{ parameters}$$
+    Such a high parameter footprint makes the model highly susceptible to overfitting, especially on limited datasets.
+
+To mitigate these limits, techniques such as **Data Augmentation** (random horizontal flips, rotations, and zooms), **$L_2$ Regularization**, and **Dropout** are incorporated into the training pipeline.
+
+##### B. Mathematical Formulation of Neuron Operations
+Each artificial neuron performs a linear combination of its inputs, adds a bias term, and applies a non-linear activation function:
+$$z = W^T X + b$$
+Where:
+*   $X$ is the input vector.
+*   $W$ is the weight vector.
+*   $b$ is the bias.
+*   $z$ is the net input.
+
+![Neuron Operations](report/ann_neuron.png)
+
+To introduce non-linearity, the Rectified Linear Unit (ReLU) activation function is applied to the hidden layers:
+$$a = \max(0, z)$$
+ReLU is computationally efficient and helps alleviate the vanishing gradient problem.
+
+For the output layer, the **Softmax** function is utilized to generate a probability distribution over the $K = 2$ classes (Cat $= 0$, Dog $= 1$):
+$$P(y = i \mid X) = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}}$$
+Thus, the individual class probabilities are computed as:
+$$P(\text{Cat}) = \frac{e^{z_{\text{cat}}}}{e^{z_{\text{cat}}} + e^{z_{\text{dog}}}}$$
+$$P(\text{Dog}) = \frac{e^{z_{\text{dog}}}}{e^{z_{\text{cat}}} + e^{z_{\text{dog}}}}$$
+The final predicted class corresponds to the index with the maximum probability:
+$$\hat{y} = \operatorname{argmax}(P(\text{Cat}), P(\text{Dog}))$$
+
+##### C. Regularization and Dropout
+To control overfitting, the model minimizes a regularized loss function consisting of Sparse Categorical Cross-Entropy and an $L_2$ weight penalty:
+$$\mathcal{L}_{\text{total}} = -\frac{1}{N} \sum_{i=1}^{N} \log P(y_i \mid X_i) + \lambda \sum_{w} w^2$$
+Where:
+*   $N$ is the number of training samples.
+*   $y_i$ is the true label of sample $i$.
+*   $\lambda = 0.0005$ is the regularization coefficient (weight decay).
+
+Additionally, **Dropout** with a rate of $p = 0.4$ is applied after the hidden layer. During each training step, 40% of the neurons are randomly deactivated (ignored), forcing the network to learn redundant representations and reducing co-dependency between neurons.
+
+![ANN Data Pipeline](report/ann_data_pipeline.png)
+
+#### 3.2. Model Structure
+
+The Artificial Neural Network model is implemented using TensorFlow's Keras Sequential API. It includes data augmentation layers at the input to improve generalization, followed by flattening, a hidden dense layer with regularization, and a softmax output layer.
+
+![ANN Architecture](report/ann_architecture.png)
+
+##### A. Hyperparameters
+*   **Input Resolution**: $64 \times 64 \times 3$ (RGB)
+*   **Data Augmentation**:
+    *   Horizontal Flipping (`RandomFlip("horizontal")`)
+    *   Random Rotation (`RandomRotation(0.05)`)
+    *   Random Zoom (`RandomZoom(0.05)`)
+*   **Hidden Layer Neurons**: 256
+*   **Activation Function**: Rectified Linear Unit (ReLU) for the hidden layer, Softmax for the output layer.
+*   **Regularization**: L2 regularization on the hidden layer weights with $\lambda = 0.0005$.
+*   **Dropout Rate**: $0.4$ (applied after the hidden dense layer).
+*   **Output Classes**: 2 (Cat = 0, Dog = 1).
+
+##### B. Model Construction Code
+The following Keras code defines the architecture of the ANN model:
+
+```python
+model = tf.keras.models.Sequential([
+    tf.keras.layers.RandomFlip("horizontal", input_shape=(im_size, im_size, 3)),
+    tf.keras.layers.RandomRotation(0.05),
+    tf.keras.layers.RandomZoom(0.05),
+    tf.keras.layers.Flatten(),
+    tf.keras.layers.Dense(
+        256,
+        activation='relu',
+        kernel_regularizer=tf.keras.regularizers.l2(0.0005)
+    ),
+    tf.keras.layers.Dropout(0.4),
+    tf.keras.layers.Dense(2, activation='softmax')
+])
+```
+
+##### C. Model Diagram
+The information flow through the layers is represented as follows:
+
+```
+Input Image (64x64x3)
+        │
+        ▼
+[Data Augmentation] (Flip, Rotate, Zoom)
+        │
+        ▼
+[Flatten Layer] (Converts 64x64x3 tensor to 12,288 vector)
+        │
+        ▼
+[Dense Hidden Layer] (256 Neurons, ReLU, L2 Regularization λ=0.0005)
+        │
+        ▼
+[Dropout Layer] (Rate p=0.4)
+        │
+        ▼
+[Dense Output Layer] (2 Neurons, Softmax)
+        │
+        ▼
+Class Probabilities (Cat vs. Dog)
+```
+
+#### 3.3. Training Process
+
+##### A. Training Configuration and Callbacks
+The model is compiled and trained with the following optimization settings and callbacks:
+*   **Optimizer**: Adam with a learning rate of $\alpha = 0.0001$.
+*   **Loss Function**: Sparse Categorical Cross-Entropy.
+*   **Evaluation Metric**: Accuracy.
+*   **Batch Size**: 32.
+*   **Epochs**: 30.
+*   **Callbacks**:
+    *   `ReduceLROnPlateau`: Monitors validation loss (`val_loss`). If the validation loss does not improve for 2 consecutive epochs, the learning rate is halved ($\alpha_{\text{new}} = 0.5 \times \alpha_{\text{old}}$), with a minimum learning rate limit of $10^{-6}$.
+    *   `BestValAccuracyCheckpoint`: A checkpoint callback that monitors validation accuracy (`val_accuracy`). It saves the model state to `best_ann_model.keras` only when an improvement is detected, ensuring that the final evaluation uses the best model based on validation accuracy.
+
+##### B. Training Dynamics
+During training, the model processed a split of **20,000 training images**, **2,500 validation images**, and **2,500 test images** (using stratified splits from the dataset). The training metrics evolved as follows:
+*   In the first epoch, the model started with an accuracy of $54.31\%$ and a loss of $0.8860$, while the validation accuracy was $60.60\%$.
+*   The validation accuracy improved progressively, reaching its peak of **$65.20\%$** at epoch 25 with a validation loss of $0.6386$.
+*   At epoch 12, `ReduceLROnPlateau` reduced the learning rate to $5.00 \times 10^{-5}$ as validation loss stabilized. It was reduced again to $2.50 \times 10^{-5}$ at epoch 19, and to $1.25 \times 10^{-5}$ at epoch 22.
+*   The best model saved at epoch 25 (`best_ann_model.keras`) was used for final evaluation.
+
+![ANN Training Epochs](report/ann_training_epochs.png)
+![ANN Training Curves](report/ann_training_curves.png)
+
+#### 3.4. Validation and Test Results
+
+The saved best model was evaluated on the held-out test dataset of **2,500 images** (stratified split containing 1,250 cats and 1,250 dogs) to assess its generalization capability.
+
+##### A. Performance Metrics
+The model achieved a final test accuracy of **$64.48\%$** and a test loss of $0.6368$. The detailed classification report is shown below:
+
+| Class | Precision | Recall | F1-Score | Support |
+| :--- | :---: | :---: | :---: | :---: |
+| **Cats (0)** | 0.64 | 0.68 | 0.66 | 1250 |
+| **Dogs (1)** | 0.65 | 0.61 | 0.63 | 1250 |
+| **Accuracy** | | | **0.64** | **2500** |
+| **Macro Avg** | 0.65 | 0.64 | 0.64 | 2500 |
+| **Weighted Avg** | 0.65 | 0.64 | 0.64 | 2500 |
+
+##### B. Confusion Matrix Analysis
+Based on the recall rates and support size, the confusion matrix is derived as:
+*   **True Negatives (TN - Cats predicted as Cats)**: 850 images ($68\%$ recall).
+*   **False Positives (FP - Cats predicted as Dogs)**: 400 images.
+*   **False Negatives (FN - Dogs predicted as Cats)**: 488 images.
+*   **True Positives (TP - Dogs predicted as Dogs)**: 762 images ($61\%$ recall).
+
+The model shows a slight bias towards classifying images as cats (predicting 1,338 images as cats compared to 1,162 predicted as dogs).
+
+![ANN Confusion Matrix](report/ann_confusion_matrix.png)
+![ANN Classification Metrics](report/ann_classification_metrics.png)
+
+#### 3.5. Conclusion
+
+The ANN baseline model successfully establishes a classification baseline with an accuracy of **$64.48\%$**. 
+
+##### A. Efficiency and Performance
+*   **Training Time**: Training is computationally light compared to deep CNN architectures. Each epoch takes approximately 20 seconds on a standard GPU, allowing the entire 30-epoch cycle to complete in under 10 minutes.
+*   **Memory Footprint**: The parameter size of the model is relatively large (approximately 3.1 million parameters) due to the dense connection between the flattened 12,288-dimensional input vector and the 256-node hidden layer.
+
+##### B. Model Quality and Generalization
+*   Although regularizations like L2 weight decay ($\lambda = 0.0005$) and Dropout ($p = 0.4$) successfully prevented severe overfitting (as training and validation metrics tracked closely), the final classification accuracy remains low ($64.48\%$).
+*   This performance ceiling is a direct result of the flattening process, which destroys critical 2D spatial relationships between neighboring pixels. Consequently, the ANN struggles to extract abstract shapes and local features compared to models that utilize convolution and pooling operations.
 
 ### 4. Convolutional Neural Network (CNN) from Scratch
 
@@ -897,7 +897,7 @@ The structural properties of the model are outlined below:
 *   **Loss Function**: Cross-Entropy Loss.
 *   **Batch Size**: 64.
 *   **Epochs**: 20.
-*   **Data Splits**: The dataset was partitioned into **25,071 training images**, **3,123 validation images**, and **3,435 test images**.
+*   **Data Splits**: The dataset was partitioned into **20,000 training images**, **2,500 validation images**, and **2,500 test images**.
 *   **Augmentation Pipeline**: Train: resize ($256 \times 256$), crop ($224 \times 224$), horizontal flip, rotation ($\pm 15^\circ$), and color jitter (brightness, contrast). Validation/Test: resize ($224 \times 224$) and normalization.
 
 ##### B. Training Dynamics
