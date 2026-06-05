@@ -685,7 +685,7 @@ Input Image (224x224x3)
 Predicted Class Probabilities (Cat vs. Dog)
 ```
 
-![CNN Architecture Diagram](cnn_fully_connected.jpg)
+![CNN Architecture Diagram](cnn_architecture.jpg)
 
 #### 4.3. Training Process
 
@@ -877,7 +877,7 @@ class ImageClassifier(ResNet18):
 
 ##### C. Model Layout and Dimensionality Changes
 
-![ResNet-18 Architecture](resnet18_architecture.png)
+![ResNet-18 Architecture](resnet_architecture.png)
 
 The structural properties of the model are outlined below:
 
