@@ -85,6 +85,8 @@ Where:
 *   $b$ is the bias.
 *   $z$ is the net input.
 
+![Neuron Operations](ann_neuron.png)
+
 To introduce non-linearity, the Rectified Linear Unit (ReLU) activation function is applied to the hidden layers:
 $$a = \max(0, z)$$
 ReLU is computationally efficient and helps alleviate the vanishing gradient problem.
@@ -107,9 +109,13 @@ Where:
 
 Additionally, **Dropout** with a rate of $p = 0.4$ is applied after the hidden layer. During each training step, 40% of the neurons are randomly deactivated (ignored), forcing the network to learn redundant representations and reducing co-dependency between neurons.
 
+![ANN Data Pipeline](ann_data_pipeline.png)
+
 #### 1.2. Model Structure
 
 The Artificial Neural Network model is implemented using TensorFlow's Keras Sequential API. It includes data augmentation layers at the input to improve generalization, followed by flattening, a hidden dense layer with regularization, and a softmax output layer.
+
+![ANN Architecture](ann_architecture.png)
 
 ##### A. Hyperparameters
 *   **Input Resolution**: $64 \times 64 \times 3$ (RGB)
@@ -187,6 +193,9 @@ During training, the model processed a split of **20,000 training images**, **2,
 *   At epoch 12, `ReduceLROnPlateau` reduced the learning rate to $5.00 \times 10^{-5}$ as validation loss stabilized. It was reduced again to $2.50 \times 10^{-5}$ at epoch 19, and to $1.25 \times 10^{-5}$ at epoch 22.
 *   The best model saved at epoch 25 (`best_ann_model.keras`) was used for final evaluation.
 
+![ANN Training Epochs](ann_training_epochs.png)
+![ANN Training Curves](ann_training_curves.png)
+
 #### 1.4. Validation and Test Results
 
 The saved best model was evaluated on the held-out test dataset of **2,500 images** (stratified split containing 1,250 cats and 1,250 dogs) to assess its generalization capability.
@@ -210,6 +219,9 @@ Based on the recall rates and support size, the confusion matrix is derived as:
 *   **True Positives (TP - Dogs predicted as Dogs)**: 762 images ($61\%$ recall).
 
 The model shows a slight bias towards classifying images as cats (predicting 1,338 images as cats compared to 1,162 predicted as dogs).
+
+![ANN Confusion Matrix](ann_confusion_matrix.png)
+![ANN Classification Metrics](ann_classification_metrics.png)
 
 #### 1.5. Conclusion
 
@@ -560,6 +572,8 @@ Standard Artificial Neural Networks (ANNs/MLPs) are structurally limited when de
     $$150,528 \times 512 + 512 \approx 77 \text{ million parameters}$$
     This massive parameter size causes overfitting and is highly demanding on GPU/CPU resources.
 
+![MLP vs CNN](cnn_mlp_vs_cnn.png)
+
 ##### B. Convolutional Layer Mechanics
 Convolutional Neural Networks preserve spatial features by using **local connectivity** and **weight sharing**:
 1.  **Local Receptive Fields**: Instead of connecting to the entire image, each neuron in a convolutional layer connects only to a localized region (receptive field) of the input.
@@ -567,10 +581,15 @@ Convolutional Neural Networks preserve spatial features by using **local connect
 The dimensions of an output feature map $O$ given input size $I$, filter size $F$, padding $P$, and stride $S$ is computed as:
 $$O = \left\lfloor \frac{I - F + 2P}{S} \right\rfloor + 1$$
 
+![Convolution Formula](cnn_conv_formula.png)
+![Convolution Visualization](cnn_conv_visualization.png)
+
 ##### C. Activation and Pooling Operations
 -   **Non-Linearity (ReLU)**: Applied element-wise after every convolution to introduce non-linear mapping capabilities. The Rectified Linear Unit ($f(x) = \max(0, x)$) is standard because its constant gradient of 1 for positive inputs mitigates the vanishing gradient problem.
 -   **Pooling (Max Pooling)**: Performs spatial downsampling by extracting the maximum value within a window (e.g., $2 \times 2$ window with stride 2). This reduces spatial dimensions by 75%, controls overfitting, and grants translation invariance.
 -   **Global Average Pooling (GAP)**: Instead of flattening the final 3D feature map into a massive 1D vector (which introduces millions of parameters), GAP computes the spatial average of each feature map channel ($H \times W \times C \rightarrow 1 \times 1 \times C$). This makes the transition to fully connected layers parameter-free and acts as a strong regularizer.
+
+![Max Pooling Visualization](cnn_maxpool_visualization.png)
 
 #### 4.2. Model Structure
 
@@ -666,6 +685,8 @@ Input Image (224x224x3)
 Predicted Class Probabilities (Cat vs. Dog)
 ```
 
+![CNN Architecture Diagram](cnn_fully_connected.jpg)
+
 #### 4.3. Training Process
 
 ##### A. Training Configuration and Callbacks
@@ -682,6 +703,8 @@ The model was trained on the full dataset partition comprising **20,000 training
 *   The validation accuracy increased steadily, peaking at **$96.41\%$** in epoch 19 with a validation loss of $0.0941$.
 *   The learning rate was reduced by the scheduler at epoch 14 to $3 \times 10^{-5}$ as validation loss stabilized, leading to tighter convergence.
 *   The optimal model checkpoint saved at epoch 19 was restored for testing.
+
+![CNN Training Curves](cnn_training_curves.png)
 
 #### 4.4. Validation and Test Results
 
@@ -707,6 +730,9 @@ Based on the recall rates and support size:
 
 The network displays a balanced classification performance with no significant bias towards either class, indicating that spatial feature maps are highly distinctive for both cats and dogs.
 
+![CNN Confusion Matrix](cnn_confusion_matrix.png)
+![CNN Classification Metrics](cnn_classification_metrics.png)
+
 #### 4.5. Conclusion
 
 ##### A. Efficiency and Performance
@@ -727,6 +753,8 @@ The network displays a balanced classification performance with no significant b
 2.  **Vanishing Gradients**: As networks get deeper, the gradient signals backpropagated via the chain rule are continuously multiplied by matrix weights and activation derivatives. If these factors are bounded below $1.0$ (e.g., using classic activations like sigmoid), the gradient decays exponentially, approaching zero. Consequently, early layers fail to update, limiting trainability. While techniques like Batch Normalization and ReLU mitigate this, another issue remains.
 3.  **Degradation Phenomenon**: Past a certain depth, plain CNNs saturate in accuracy and then degrade rapidly. Crucially, this is not caused by overfitting, as training error increases alongside validation error. The network becomes too complex, causing gradient pathways to become distorted and noisy, preventing the optimization algorithm from learning identity mappings.
 
+![Training and Test Error Degradation](resnet_degradation.png)
+
 ##### B. Residual Learning and Shortcut Connections
 To solve the degradation problem, ResNet introduces **residual learning** using **shortcut (skip) connections** that bypass one or more convolutional layers.
 
@@ -737,6 +765,8 @@ Where:
 *   $F(x)$ represents the convolutional transformations within the block.
 *   $H(x)$ is the output tensor.
 
+![Residual Learning Block](resnet_residual_block.png)
+
 ##### C. Advantages of Residual Connections
 1.  **Bypassing Identity Mappings**: If a layer is redundant, the network can easily drive the weights within the residual branch $F(x)$ to zero ($F(x) = 0$), reducing the block output to a simple identity mapping ($H(x) = x$). Learning $F(x) = 0$ is significantly easier for optimizers than learning $H(x) = x$ through stacked non-linear layers.
 2.  **Unhindered Gradient Propagation**: During backpropagation, the derivative of the output $y = F(x) + x$ with respect to the input $x$ is:
@@ -746,6 +776,8 @@ Where:
 #### 5.2. Model Structure
 
 The ResNet-18 architecture consists of a stem convolutional layer, 4 sequential residual stages (each containing 2 `BasicBlock` modules), Global Average Pooling, and a Dropout-regularized fully connected output layer.
+
+![ResNet BasicBlock](resnet_basic_block.png)
 
 ##### A. Hyperparameters
 *   **Input Resolution**: $224 \times 224 \times 3$ (RGB)
@@ -875,6 +907,9 @@ The structural properties of the model are outlined below:
     *   Validation loss: $0.0941$, Validation accuracy: $96.41\%$.
 *   Training took 5,552 seconds (approximately 1.5 hours) on a standard GPU.
 
+![ResNet Training Loss](resnet_training_loss.png)
+![ResNet Training Accuracy](resnet_training_accuracy.png)
+
 #### 5.4. Validation and Test Results
 
 The saved optimal model checkpoint was evaluated on the held-out test set of **2,500 images** (1,250 cats and 1,250 dogs) for consistent evaluation.
@@ -898,6 +933,9 @@ Based on the recall rates and support size:
 *   **True Positives (TP - Dogs predicted as Dogs)**: 1,199 images ($95.92\%$ recall).
 
 The ResNet-18 model achieved extremely high precision and recall, with only 89 misclassified samples out of 2,500.
+
+![ResNet Test Loss and Accuracy](resnet_test_loss_acc.png)
+![ResNet Confusion Matrix](resnet_confusion_matrix.png)
 
 #### 5.5. Conclusion
 
