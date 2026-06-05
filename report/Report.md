@@ -231,12 +231,19 @@ The ANN baseline model successfully establishes a classification baseline with a
 Histogram of Oriented Gradients (HOG) is a traditional handcrafted feature descriptor used in computer vision to capture the shape and appearance of objects in an image. Unlike deep learning networks that learn features automatically, HOG explicitly models shapes by capturing edge directions and gradient distributions. The extraction pipeline consists of the following mathematical stages:
 
 1.  **Image Preprocessing**: Input RGB images are converted to grayscale to focus strictly on shape contours rather than color variance. They are then standardized to a spatial resolution of $64 \times 64$ pixels to ensure a constant vector dimensionality.
+
+![HOG Extraction Pipeline](hog_pipeline.png)
 2.  **Gradient Calculation**: For each pixel, the horizontal gradient $G_x$ and vertical gradient $G_y$ are computed by filtering the image with 1D Sobel-like kernels: $K_x = [-1, 0, 1]$ and $K_y = [-1, 0, 1]^T$.
     The gradient magnitude $G(x, y)$ and orientation $\theta(x, y)$ are defined as:
     $$G(x, y) = \sqrt{G_x(x, y)^2 + G_y(x, y)^2}$$
     $$\theta(x, y) = \arctan\left(\frac{G_y(x, y)}{G_x(x, y)}\right)$$
     The angle $\theta$ is unsigned, wrapping within the range $[0^\circ, 180^\circ]$ to ensure invariance to sign changes in lighting.
+
+![Gradient Magnitudes and Directions](hog_gradients.png)
+
 3.  **Spatial Cell Partitioning and Orientation Binning**: The image is divided into contiguous, non-overlapping cells of $8 \times 8$ pixels. For each cell, a 9-bin orientation histogram is created, where bins correspond to orientations of $0^\circ, 20^\circ, 40^\circ, \dots, 160^\circ$.
+
+![Cells and Blocks](hog_cells_blocks.png)
     Each pixel inside the cell casts a vote into the histogram. The vote's bin is determined by the pixel's gradient angle $\theta$, and its weight is determined by the gradient magnitude $G$. To avoid quantization noise, votes are split proportionally between adjacent orientation bins.
 4.  **Block Normalization**: Gradient strengths vary extensively due to lighting and local illumination changes. To make the descriptor robust to contrast variations, local histograms are normalized over larger, overlapping spatial blocks of $2 \times 2$ cells (which equals $16 \times 16$ pixels).
     The histograms of the 4 cells in a block are concatenated into a $36$-dimensional vector $v$. The vector is then normalized using the $L_2$-norm:
@@ -250,6 +257,8 @@ Histogram of Oriented Gradients (HOG) is a traditional handcrafted feature descr
     $$49 \text{ blocks} \times 36 \text{ features/block} = 1764 \text{ dimensions}$$
 
 ##### B. Linear Support Vector Machine (SVM)
+
+![Linear SVM Margin](svm_margin.png)
 A Support Vector Machine is a supervised binary classifier that constructs an optimal decision boundary (hyperplane) separating two classes with a maximum margin. Rather than utilizing off-the-shelf solvers, a custom linear SVM was implemented from scratch using NumPy.
 
 1.  **Optimization Objective**: Given a training set of HOG features $X_i \in \mathbb{R}^{1764}$ and binary class labels $y_i \in \{-1, 1\}$ (where Cat $= -1$, Dog $= 1$), the model learns weights $w \in \mathbb{R}^{1764}$ and bias $b \in \mathbb{R}$ by minimizing Hinge Loss combined with L2 weight regularization:
@@ -350,6 +359,8 @@ Class Sign Output (-1: Cat, +1: Dog)
 
 #### 2.3. Training Process
 
+![Grid Search Parameter Validation](svm_grid_search.png)
+
 The HOG + SVM baseline model was trained using the custom SGD implementation on a balanced subset of **3,200 training images**.
 
 ##### B. Training Dynamics
@@ -360,6 +371,8 @@ During the 500-iteration training run, the optimization progressed as follows:
 *   **Epoch 300**: The accuracy reached **$76.66\%$**.
 *   **Epoch 400**: The accuracy reached **$76.88\%$**.
 *   **Epoch 500**: The training accuracy completed at **$76.84\%$**, indicating stable convergence.
+
+![SVM Training Curves](svm_training_curves.png)
 
 The SGD successfully converged without showing severe oscillations, showing that the learning rate $\eta = 0.0001$ combined with the weight decay $\lambda = 0.01$ was appropriate.
 
@@ -384,6 +397,8 @@ Based on the metrics:
 *   **False Positives (FP - Cats predicted as Dogs)**: 139 images.
 *   **False Negatives (FN - Dogs predicted as Cats)**: 103 images.
 *   **True Positives (TP - Dogs predicted as Dogs)**: 299 images ($74\%$ recall).
+
+![SVM Confusion Matrix](svm_confusion_matrix.png)
 
 The model performed slightly better on dogs than on cats, indicating that the rigid shape and texture patterns extracted by HOG are slightly more distinctive for dogs.
 
@@ -463,6 +478,8 @@ model.fit(X_train_scaled, y_train)
 ##### C. Model Diagram
 The detailed end-to-end data flow is depicted below:
 
+![SIFT BoVW Pipeline](sift_bovw_pipeline.png)
+
 ```
 Raw Image (256x256 Grayscale)
            │
@@ -515,6 +532,8 @@ Based on the recall rates and support size:
 *   **False Positives (FP - Cats predicted as Dogs)**: 92 images.
 *   **False Negatives (FN - Dogs predicted as Cats)**: 156 images.
 *   **True Positives (TP - Dogs predicted as Dogs)**: 243 images ($61\%$ recall).
+
+![SIFT Confusion Matrix](sift_confusion_matrix.png)
 
 The Random Forest classifier shows a strong bias towards classifying images as cats (predicting 465 cats vs. 335 dogs). This is likely because cats, having more varied but local texture patterns, frequently activate visual words that the ensemble trees heavily associate with the cat class.
 
