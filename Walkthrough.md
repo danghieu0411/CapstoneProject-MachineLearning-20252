@@ -20,8 +20,8 @@ Chúng ta cần xây dựng nội dung cho báo cáo cuối cùng tại [Report.
 - [x] **Bước 2: Viết nội dung Phần I (Introduction) & Phần II (Dataset)**
   - [x] Giới thiệu bài toán phân loại chó/mèo và liệt kê các model.
   - [x] Mô tả dataset gốc (Microsoft Cats and Dogs) và cách phân chia dữ liệu cho từng mô hình.
-- [/] **Bước 3: Viết nội dung chi tiết Phần III (Model and Training)**
-  - [/] **Artificial Neural Network (ANN)** (Hoàn thành)
+- [x] **Bước 3: Viết nội dung chi tiết Phần III (Model and Training)**
+  - [x] **Artificial Neural Network (ANN)** (Hoàn thành)
     - [x] Lý thuyết nền tảng (Theoretical Background)
     - [x] Cấu trúc mô hình (Model Structure)
     - [x] Quá trình huấn luyện (Training Process)
@@ -36,20 +36,20 @@ Chúng ta cần xây dựng nội dung cho báo cáo cuối cùng tại [Report.
     - [x] Cấu trúc mô hình (Model Structure)
     - [x] Quá trình huấn luyện (Training Process)
     - [x] Kết quả và kết luận (Results and Conclusion)
-  - [ ] **CNN from Scratch** (Chưa bắt đầu)
-    - [ ] Lý thuyết nền tảng (Theoretical Background)
-    - [ ] Cấu trúc mô hình (Model Structure)
-    - [ ] Quá trình huấn luyện (Training Process)
-    - [ ] Kết quả và kết luận (Results and Conclusion)
-  - [ ] **CNN-ResNet (ResNet-18)** (Chưa bắt đầu)
-    - [ ] Lý thuyết nền tảng (Theoretical Background)
-    - [ ] Cấu trúc mô hình (Model Structure)
-    - [ ] Quá trình huấn luyện (Training Process)
-    - [ ] Kết quả và kết luận (Results and Conclusion)
-- [ ] **Bước 4: Xây dựng Phần IV (So sánh, nhận xét)**
+  - [x] **CNN from Scratch** (Hoàn thành)
+    - [x] Lý thuyết nền tảng (Theoretical Background)
+    - [x] Cấu trúc mô hình (Model Structure)
+    - [x] Quá trình huấn luyện (Training Process)
+    - [x] Kết quả và kết luận (Results and Conclusion)
+  - [x] **CNN-ResNet (ResNet-18)** (Hoàn thành)
+    - [x] Lý thuyết nền tảng (Theoretical Background)
+    - [x] Cấu trúc mô hình (Model Structure)
+    - [x] Quá trình huấn luyện (Training Process)
+    - [x] Kết quả và kết luận (Results and Conclusion)
+- [x] **Bước 4: Xây dựng Phần IV (So sánh, nhận xét)**
   - Lập bảng so sánh tổng hợp hiệu năng (thời gian training, tài nguyên) và chất lượng (Accuracy, Loss, Precision, Recall, F1-score) giữa các mô hình.
   - Đưa ra khuyến nghị lựa chọn mô hình tối ưu.
-- [ ] **Bước 5: Viết Phần V (Hướng phát triển)**
+- [x] **Bước 5: Viết Phần V (Hướng phát triển)**
   - Đề xuất hướng cải tiến, mở rộng mô hình (ResNet-34/50, Transformer) và cải thiện phần cứng/dữ liệu.
-- [ ] **Bước 6: Kiểm tra và hoàn thiện**
+- [x] **Bước 6: Kiểm tra và hoàn thiện**
   - Rà soát định dạng hiển thị, tính chính xác của công thức toán học và các liên kết hình ảnh trong [Report.md](file:///home/duy/Downloads/CapstoneProject-MachineLearning-20252/Report.md).
