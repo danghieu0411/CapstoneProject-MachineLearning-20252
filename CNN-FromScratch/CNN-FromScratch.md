@@ -64,7 +64,7 @@ During the training phase, data augmentation was applied to artificially expand 
 
 ## Custom Convolutional Architecture
 
-The network avoids the aggressive spatial downsampling seen in our first-attempt architectures. Instead, it utilizes four sequential convolutional blocks. Each block is constructed with a convolutional layer using a $3 \times 3$ kernel, a stride of 1, and a padding of 1. This configuration preserves the spatial dimensions during the convolution operation itself. Spatial reduction is delegated entirely to a subsequent $2 \times 2$ Max Pooling layer.
+The network avoids the aggressive spatial downsampling seen in our first-attempt architectures. Instead, it utilizes four sequential convolutional blocks. Each block contains two stacked convolutional layers, each using a $3 \times 3$ kernel, a stride of 1, and a padding of 1, and each immediately followed by Batch Normalization and a ReLU activation. Stacking two convolutions per block deepens feature extraction at a given resolution, while the stride-1, padding-1 configuration preserves the spatial dimensions during the convolution operations themselves. The Batch Normalization layers standardize the activations of each mini-batch, stabilizing and accelerating training while also acting as a mild regularizer. Spatial reduction is delegated entirely to a $2 \times 2$ Max Pooling layer applied at the end of each block.
 
 The network progressively increases the depth of the feature maps as the spatial dimensions decrease, following a channel progression of $32 \rightarrow 64 \rightarrow 128 \rightarrow 256$.
 
@@ -76,22 +76,23 @@ A major architectural divergence from traditional CNNs (which typically flatten 
 
 Instead of flattening the $14 \times 14 \times 256$ tensor—which would result in 50,176 features and millions of parameters in the subsequent dense layer—GAP calculates the spatial average of each of the 256 channels. This operation yields a compact $1 \times 1 \times 256$ vector. This design choice is parameter-free, significantly reduces the computational footprint, and acts as a strong structural regularizer against overfitting.
 
-The resulting 256-dimensional vector is passed through a Fully Connected bottleneck layer of 128 neurons (activated by ReLU). To further mitigate overfitting, a Dropout layer is applied with a probability of $p=0.4$, zeroing out random neuron activations during training. A final linear transformation maps the data to the two target classes.
+The resulting 256-dimensional vector is passed through a Fully Connected bottleneck layer of 128 neurons (activated by ReLU). To further mitigate overfitting, a Dropout layer is applied with a probability of $p=0.4$, zeroing out random neuron activations during training. A final linear transformation maps the data to the two target classes. In total, this architecture contains only about 1.2 million trainable parameters—remarkably compact for a model reaching this level of accuracy.
 
 ## Optimization and Training Dynamics
 
-The model was optimized using the Adam algorithm with an initial learning rate of $1 \times 10^{-3}$. To ensure the model converged effectively, a dynamic learning rate scheduler (ReduceLROnPlateau) was employed, configured to halve the learning rate if the validation loss failed to improve for two consecutive epochs.During the 15-epoch training cycle, model checkpointing was utilized. The state dictionary was captured at the epoch yielding the highest validation accuracy, ensuring that the final evaluated model represented the optimal set of weights rather than an overfitted end-state.
+The model was optimized using the Adam algorithm with an initial learning rate of $1 \times 10^{-3}$ and a weight decay (L2 regularization) of $1 \times 10^{-4}$. To ensure the model converged effectively, a dynamic learning rate scheduler (ReduceLROnPlateau) was employed, configured to halve the learning rate if the validation loss failed to improve for two consecutive epochs.During the 25-epoch training cycle, model checkpointing was utilized. The state dictionary was captured at the epoch yielding the highest validation accuracy, ensuring that the final evaluated model represented the optimal set of weights rather than an overfitted end-state.
 
 ## Result 
 
 Accuracy/loss curves when training/validating:
 
-![](5.png)
+![](8.png)
 
 Confusion matrix:
 
-![](6.png)
+![](9.png)
 
 Other metrics:
 
-![](7.png)
+![](10.png)
+
