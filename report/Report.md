@@ -744,7 +744,7 @@ The network displays a balanced classification performance with no significant b
 *   By preserving the 2D spatial arrangement of pixels, the convolutional filters successfully learned to recognize low-level edges, mid-level fur patterns, and high-level structural features (eyes, nose, ears) of the pets.
 *   The integration of Batch Normalization, Dropout ($p=0.4$), GAP, and aggressive data augmentation successfully prevented overfitting, yielding test metrics that closely match training metrics.
 
-### 5. Residual Network (ResNet-18)
+### 5. Residual Network
 
 #### 5.1. Theoretical Background
 
@@ -768,26 +768,26 @@ Where:
 ![Residual Learning Block](resnet_residual_block.png)
 
 ##### C. Advantages of Residual Connections
-1.  **Bypassing Identity Mappings**: If a layer is redundant, the network can easily drive the weights within the residual branch $F(x)$ to zero ($F(x) = 0$), reducing the block output to a simple identity mapping ($H(x) = x$). Learning $F(x) = 0$ is significantly easier for optimizers than learning $H(x) = x$ through stacked non-linear layers.
+1.  **Solving the Degradation Phenomenon and the Depth Problem**: If a layer is redundant, the network can easily drive the weights within the residual branch $F(x)$ to zero ($F(x) = 0$), reducing the block output to a simple identity mapping ($H(x) = x$). Learning $F(x) = 0$ is significantly easier for optimizers than learning $H(x) = x$ through stacked non-linear layers.This ensures that a deep network will never have a worse training error than a shallow network.Moreover, learning residual F (x) instead of H(x) making training process much faster => the network can be very deep( up to 1000 layers )
 2.  **Unhindered Gradient Propagation**: During backpropagation, the derivative of the output $y = F(x) + x$ with respect to the input $x$ is:
     $$\frac{\partial L}{\partial x} = \frac{\partial L}{\partial y} \frac{\partial y}{\partial x} = \frac{\partial L}{\partial y} \left( \frac{\partial F(x)}{\partial x} + 1 \right) = \frac{\partial L}{\partial y} \frac{\partial F(x)}{\partial x} + \frac{\partial L}{\partial y}$$
     This shows that the gradient $\frac{\partial L}{\partial y}$ is added directly to the backpropagated error. Even if the weight pathways in the convolutional branch $\frac{\partial F(x)}{\partial x}$ vanish to zero, the gradient still flows through the shortcut pathway (the term $+ \frac{\partial L}{\partial y}$), ensuring early layers are successfully updated regardless of depth.
 
 #### 5.2. Model Structure
 
-The ResNet-18 architecture consists of a stem convolutional layer, 4 sequential residual stages (each containing 2 `BasicBlock` modules), Global Average Pooling, and a Dropout-regularized fully connected output layer.
+ResNet is constructed by main components are many Residual blocks, combine with pooling layers , fully connected layers , .etc. 
+
+##### A. Structure of a residual block 
 
 ![ResNet BasicBlock](resnet_basic_block.png)
 
-##### A. Hyperparameters
-*   **Input Resolution**: $224 \times 224 \times 3$ (RGB)
-*   **Stem Layer (Layer 0)**: Conv $7 \times 7$ (stride 2), Batch Normalization, ReLU, MaxPool $3 \times 3$ (stride 2). Input size is downsampled from $224 \times 224 \times 3$ to $56 \times 56 \times 64$.
-*   **Residual Stages**:
-    *   **Layer 1**: 2 blocks of stacked Conv $3 \times 3$ ($64 \rightarrow 64$ channels). Shortcut: Identity mapping.
-    *   **Layer 2**: 2 blocks of stacked Conv $3 \times 3$ ($64 \rightarrow 128$ channels). Shortcut: Downsampled via Conv $1 \times 1$ with stride 2.
-    *   **Layer 3**: 2 blocks of stacked Conv $3 \times 3$ ($128 \rightarrow 256$ channels). Shortcut: Downsampled via Conv $1 \times 1$ with stride 2.
-    *   **Layer 4**: 2 blocks of stacked Conv $3 \times 3$ ($256 \rightarrow 512$ channels). Shortcut: Downsampled via Conv $1 \times 1$ with stride 2.
-*   **Output Block**: Global Average Pooling ($7 \times 7 \rightarrow 1 \times 1$), Flattening, Dropout ($p=0.3$), and a Linear classifier mapping 512 channels to 2 output classes.
+- Charateristic of a block contain:
+   - number of feature maps in of 1st conv layer
+   - number of feature maps out of 1st conv layer(also number of in and out feature maps of 2nd layer )
+   - stride of first conv layer (the second is 1)
+- These hyperparamaters define the size , number of feature maps go through the network ( stride >1 can reduce the size of feature map)
+- The size of x (number of feature maps , size of feature map) need to be the same as F (x)
+   - If the input x has difference size with F (x) , we need to process x througn an downsample (with 1x1 conv to change the size of x)
 
 ##### B. PyTorch Model Construction Code
 The following PyTorch code defines the ResNet-18 model architecture:
