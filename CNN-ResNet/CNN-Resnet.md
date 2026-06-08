@@ -115,7 +115,6 @@ $$\frac{\partial L}{\partial x} = 0 + \frac{\partial L}{\partial y} = \frac{\par
 
 ## Training process 
 
-![Ảnh minh họa](Anh6.png)
 ![Ảnh minh họa](Anh7.png)
 
 - The result model is from epoch 19 , which has the smallest val_loss

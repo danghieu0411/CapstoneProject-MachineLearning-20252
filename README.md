@@ -910,8 +910,7 @@ The structural properties of the model are outlined below:
     *   Validation loss: $0.0941$, Validation accuracy: $96.41\%$.
 *   Training took 5,552 seconds (approximately 1.5 hours) on a standard GPU.
 
-![ResNet Training Loss](report/resnet_training_loss.png)
-![ResNet Training Accuracy](report/resnet_training_accuracy.png)
+![ResNet Training Curves](report/resnet_training_curves.png)
 
 #### 5.4. Validation and Test Results
 
