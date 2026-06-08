@@ -929,12 +929,12 @@ The model achieved a final test accuracy of **$96.33\%$** and a test loss of $0.
 
 ##### B. Confusion Matrix Analysis
 Based on the recall rates and support size:
-*   **True Negatives (TN - Cats predicted as Cats)**: 1,212 images ($96.96\%$ recall).
-*   **False Positives (FP - Cats predicted as Dogs)**: 38 images.
-*   **False Negatives (FN - Dogs predicted as Cats)**: 51 images.
-*   **True Positives (TP - Dogs predicted as Dogs)**: 1,199 images ($95.92\%$ recall).
+*   **True Negatives (TN - Cats predicted as Cats)**: 1,211 images ($96.88\%$ recall).
+*   **False Positives (FP - Cats predicted as Dogs)**: 39 images.
+*   **False Negatives (FN - Dogs predicted as Cats)**: 55 images.
+*   **True Positives (TP - Dogs predicted as Dogs)**: 1,195 images ($95.6\%$ recall).
 
-The ResNet-18 model achieved extremely high precision and recall, with only 89 misclassified samples out of 2,500.
+The ResNet-18 model achieved extremely high precision and recall, with only 94 misclassified samples out of 2,500.
 
 ![ResNet Confusion Matrix](report/resnet_confusion_matrix.png)
 
