@@ -988,3 +988,19 @@ While the ResNet-18 model achieved outstanding generalization, several areas rem
 1.  **Architecture Scaling**: Scaling up the residual depth (e.g., ResNet-34, ResNet-50) or testing modern architectures like **Vision Transformers (ViTs)** could push the classification boundary closer to $99\%$.
 2.  **Hardware Restrictions**: Expanding GPU memory constraints would allow training larger batch sizes and higher-resolution inputs ($384 \times 384$) to extract more fine-grained features.
 3.  **Dataset Expansion**: Applying self-supervised pre-training on larger unlabelled pet databases would make the model more robust to background noise and varying breeds.
+
+## VI. References
+
+1. **Deep Residual Learning for Image Recognition** (ResNet-18)
+   * Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun.
+   * Paper: [arXiv:1512.03385](https://arxiv.org/pdf/1512.03385)
+2. **Histograms of Oriented Gradients for Human Detection** (HOG)
+   * Navneet Dalal, Bill Triggs.
+   * Paper: [CVPR 2005](http://vision.stanford.edu/teaching/cs231b_spring1213/papers/CVPR05_DalalTriggs.pdf)
+3. **Histogram of Oriented Gradients (HOG) tutorial**
+   * Satya Mallick, LearnOpenCV.
+   * Guide: [LearnOpenCV HOG Guide](https://learnopencv.com/histogram-of-oriented-gradients/)
+4. **Convolutional Neural Networks Cheatsheet** (Bản dịch tiếng Việt)
+   * Shervine Amidi, Afshine Amidi, Stanford CS230.
+   * Cheatsheet: [Stanford CS230 CNN Cheatsheet](https://stanford.edu/%7Eshervine/l/vi/teaching/cs-230/cheatsheet-convolutional-neural-networks/)
+
