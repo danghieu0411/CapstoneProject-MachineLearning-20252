@@ -1,4 +1,5 @@
 \documentclass[12pt,a4paper]{article}
+\usepackage[T5]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[vietnamese,english]{babel}
 \usepackage{amsmath}
@@ -298,23 +299,23 @@ The data processing pipeline is shown below:
 
 \begin{verbatim}
 Input Grayscale Image (64x64)
-          │
-          ▼
+          |
+          v
 [Gradient Computation] (Gx, Gy)
-          │
-          ▼
+          |
+          v
 [Orientation Binning] (8x8 cells, 9-bin histograms)
-          │
-          ▼
+          |
+          v
 [Block Normalization] (2x2 cells, L2-norm)
-          │
-          ▼
+          |
+          v
 [Flatten & Concatenate] (1,764-dimensional feature vector)
-          │
-          ▼
+          |
+          v
 [Custom NumPy Linear SVM] (Weights w in R^1764, Bias b)
-          │
-          ▼
+          |
+          v
 Class Sign Output (-1: Cat, +1: Dog)
 \end{verbatim}
 
@@ -494,23 +495,23 @@ The detailed end-to-end data flow is depicted below:
 
 \begin{verbatim}
 Raw Image (256x256 Grayscale)
-           │
-           ▼
+           |
+           v
 [SIFT Descriptor Extraction] (Variable number of 128-dimensional vectors)
-           │
-           ▼
+           |
+           v
 [BoVW Quantization] (Map each descriptor to the nearest of 500 visual words)
-           │
-           ▼
+           |
+           v
 [L2-Normalization] (Generate a 500-dimensional normalized histogram)
-           │
-           ▼
+           |
+           v
 [StandardScaler] (Subtract mean and scale to unit variance)
-           │
-           ▼
+           |
+           v
 [Random Forest Classifier] (Ensemble of 100 Decision Trees)
-           │
-           ▼
+           |
+           v
 Predicted Probability / Class (Cat = 0, Dog = 1)
 \end{verbatim}
 
@@ -713,23 +714,23 @@ The information flow through the layers is represented as follows:
 
 \begin{verbatim}
 Input Image (64x64x3)
-        │
-        ▼
+        |
+        v
 [Data Augmentation] (Flip, Rotate, Zoom)
-        │
-        ▼
+        |
+        v
 [Flatten Layer] (Converts 64x64x3 tensor to 12,288 vector)
-        │
-        ▼
+        |
+        v
 [Dense Hidden Layer] (256 Neurons, ReLU, L2 Regularization lambda=0.0005)
-        │
-        ▼
+        |
+        v
 [Dropout Layer] (Rate p=0.4)
-        │
-        ▼
+        |
+        v
 [Dense Output Layer] (2 Neurons, Softmax)
-        │
-        ▼
+        |
+        v
 Class Probabilities (Cat vs. Dog)
 \end{verbatim}
 
@@ -954,32 +955,32 @@ The data transformation flow is visualized below:
 
 \begin{verbatim}
 Input Image (224x224x3)
-          │
-          ▼
+          |
+          v
 [Block 1] (Conv 3x3 x2, BatchNorm, ReLU, MaxPool 2x2) -> Output: 112x112x32
-          │
-          ▼
+          |
+          v
 [Block 2] (Conv 3x3 x2, BatchNorm, ReLU, MaxPool 2x2) -> Output: 56x56x64
-          │
-          ▼
+          |
+          v
 [Block 3] (Conv 3x3 x2, BatchNorm, ReLU, MaxPool 2x2) -> Output: 28x28x128
-          │
-          ▼
+          |
+          v
 [Block 4] (Conv 3x3 x2, BatchNorm, ReLU, MaxPool 2x2) -> Output: 14x14x256
-          │
-          ▼
+          |
+          v
 [AdaptiveAvgPool2d] (GAP reduces spatial size to 1x1) -> Output: 1x1x256
-          │
-          ▼
+          |
+          v
 [Flatten] (Reshapes tensor to 256 vector)
-          │
-          ▼
+          |
+          v
 [Dense Layer] (Linear 256 -> 128, ReLU, Dropout p=0.4)
-          │
-          ▼
+          |
+          v
 [Output Layer] (Linear 128 -> 2)
-          │
-          ▼
+          |
+          v
 Predicted Class Probabilities (Cat vs. Dog)
 \end{verbatim}
 
