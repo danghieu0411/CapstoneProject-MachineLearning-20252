@@ -109,9 +109,9 @@ $$\frac{\partial L}{\partial x} = 0 + \frac{\partial L}{\partial y} = \frac{\par
 
 # 4 , Training result 
 - we train the resNet model with a dataset of 
-    - Train size: 25071
-    - Val size: 3123
-    - Test size : 3435 
+    - Train size: 20000
+    - Val size: 2500
+    - Test size : 2500 
 
 ## Training process 
 
@@ -120,13 +120,13 @@ $$\frac{\partial L}{\partial x} = 0 + \frac{\partial L}{\partial y} = \frac{\par
 
 - The result model is from epoch 19 , which has the smallest val_loss
 
-  - train_loss: 0.0863 
-  - train_acc: 0.9663
-  - val_loss: 0.0717 
-  - val_acc: 0.9703
+  - train_loss: 0.0692 
+  - train_acc: 0.9721
+  - val_loss: 0.0941 
+  - val_acc: 0.9641
 
 - The training process seem to be very success , better than the previous CNN model 
-- We achive 97% accuracy of the validation test in the training process , although the training size is about 25000 train and 3400 val , much more small compare to massive ImageNet 
+- We achive 96.41% accuracy of the validation test in the training process , although the training size is about 20000 train and 2500 val , much more small compare to massive ImageNet 
 - Not Overfit or Underfit:  the training and validation curves track each other closely throughout the 20 epochs. The validation loss decreases consistently alongside the training loss without flattening out or rebounding upwards. This parallel progression indicates a healthy generalization state, meaning the model is learning meaningful patterns rather than memorizing the training data.
 
 ## Test Result 
@@ -136,7 +136,7 @@ $$\frac{\partial L}{\partial x} = 0 + \frac{\partial L}{\partial y} = \frac{\par
 ![Ảnh minh họa](Anh9.png)
 
 
-- The error rate on the test set is very low (Test Loss: 0.0642). This result shows that the model has extremely good generalization capability and is not affected by overfitting at all, because the accuracy on the test set is equivalent to the accuracy on the previous validation set.
+- The error rate on the test set is very low (Test Loss: 0.0963, Test Accuracy: 96.33%). This result shows that the model has extremely good generalization capability and is not affected by overfitting at all, because the accuracy on the test set is equivalent to the accuracy on the previous validation set.
 
 - The number of dog samples misclassified as cats (51 samples) is slightly higher than the number of cat samples misclassified as dogs (38 samples); however, this difference is negligible and does not cause a clear bias toward one side (class bias). 
 - Overall, this is an excellent classification result for the Dog/Cat image classification problem using the ResNet architecture.
