@@ -418,7 +418,7 @@ The SIFT feature extraction pipeline consists of the following key stages:
     \item \textbf{Keypoint Localization}: Weak keypoints with low contrast and poorly localized edge responses are discarded to ensure stability.
     \item \textbf{Orientation Assignment}: An orientation is assigned to each keypoint based on local image gradient directions. This ensures rotation invariance as all subsequent descriptors are computed relative to the keypoint's dominant orientation.
     \item \textbf{Keypoint Descriptor Generation}: A $16 \times 16$ pixel neighborhood around the keypoint is divided into sixteen $4 \times 4$ sub-regions. For each sub-region, an 8-bin gradient orientation histogram is computed. Concatenating these histograms yields a feature descriptor vector of dimension:
-    \begin{equation{
+    \begin{equation}
         16\text{ sub-regions} \times 8\text{ bins} = 128\text{ dimensions}
     \end{equation}
     This 128-dimensional vector is normalized to achieve contrast and illumination invariance.
@@ -1102,7 +1102,7 @@ Instead of trying to fit a direct underlying mapping $H(x)$, a residual block is
     H(x) = F(x) + x
 \end{equation}
 Where:
-\begin{itemize{
+\begin{itemize}
     \item $x$ is the input tensor to the residual block.
     \item $F(x)$ represents the convolutional transformations within the block.
     \item $H(x)$ is the output tensor.
@@ -1413,7 +1413,7 @@ While the ResNet-18 model achieved outstanding generalization, several areas rem
     Guide: \href{https://learnopencv.com/histogram-of-oriented-gradients/}{LearnOpenCV HOG Guide}
     \item \textbf{Convolutional Neural Networks Cheatsheet} (Bản dịch tiếng Việt) \\
     Shervine Amidi, Afshine Amidi, Stanford CS230. \\
-    Cheatsheet: \href{https://stanford.edu/%7Eshervine/l/vi/teaching/cs-230/cheatsheet-convolutional-neural-networks/}{Stanford CS230 CNN Cheatsheet}
+    Cheatsheet: \href{https://stanford.edu/~shervine/l/vi/teaching/cs-230/cheatsheet-convolutional-neural-networks/}{Stanford CS230 CNN Cheatsheet}
     \item \textbf{The SIFT-BoVW method and feature visualization} \\
     Yong Hao, Chengxiang Zhang, Xiyan Li. \\
     Article / Figure: \href{https://www.researchgate.net/figure/The-SIFT-BoVW-method-and-feature-visualization_fig8_372275637}{ResearchGate Figure Link}

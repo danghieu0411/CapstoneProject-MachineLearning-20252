@@ -225,7 +225,7 @@ A Support Vector Machine is a supervised binary classifier that constructs an op
         \end{equation}
     \end{itemize}
     The parameters are updated at each step with learning rate $\eta$:
-    \begin{equation{
+    \begin{equation}
         w = w - \eta \left(\frac{\partial L_i}{\partial w}\right)
     \end{equation}
     \begin{equation}
@@ -594,7 +594,7 @@ A standard Artificial Neural Network (also referred to as a Multi-Layer Perceptr
     \end{equation}
     This linear transformation discards the 2D spatial arrangement, making it difficult for the network to detect local patterns.
     \item \textbf{Parameter Explosion \& Overfitting}: Because every input node connects to every neuron in the subsequent layer, the number of parameters grows rapidly. A Dense layer with 256 neurons processing a 12,288-dimensional vector requires:
-    \begin{equation{
+    \begin{equation}
         12,288 \times 256 + 256 = 3,146,240\text{ parameters}
     \end{equation}
     Such a high parameter footprint makes the model highly susceptible to overfitting, especially on limited datasets.
@@ -628,7 +628,7 @@ To introduce non-linearity, the Rectified Linear Unit (ReLU) activation function
 ReLU is computationally efficient and helps alleviate the vanishing gradient problem.
 
 For the output layer, the \textbf{Softmax} function is utilized to generate a probability distribution over the $K = 2$ classes (Cat = 0, Dog = 1):
-\begin{equation{
+\begin{equation}
     P(y = i \mid X) = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}}
 \end{equation}
 Thus, the individual class probabilities are computed as:
@@ -1343,7 +1343,7 @@ The ResNet-18 model achieved extremely high precision and recall, with only 94 m
 
 \paragraph{B. Model Quality and Generalization}
 \begin{itemize}
-    \item By preventing vanishing gradients, ResNet-18 achieves a test accuracy of \textbf{$96.33\%$} , outperforming our custom CNN ($96.20\%$) and the ANN baseline ($64.48\%$).
+    \item By preventing vanishing gradients, ResNet-18 achieves a test accuracy of \textbf{$96.33\%$}, outperforming our custom CNN ($96.20\%$) and the ANN baseline ($64.48\%$).
     \item The model generalizes exceptionally well without showing overfitting, as validated by the close agreement between the training accuracy ($97.21\%$) and test accuracy ($96.33\%$).
 \end{itemize}
 
@@ -1413,7 +1413,7 @@ While the ResNet-18 model achieved outstanding generalization, several areas rem
     Guide: \href{https://learnopencv.com/histogram-of-oriented-gradients/}{LearnOpenCV HOG Guide}
     \item \textbf{Convolutional Neural Networks Cheatsheet} (Bản dịch tiếng Việt) \\
     Shervine Amidi, Afshine Amidi, Stanford CS230. \\
-    Cheatsheet: \href{https://stanford.edu/%7Eshervine/l/vi/teaching/cs-230/cheatsheet-convolutional-neural-networks/}{Stanford CS230 CNN Cheatsheet}
+    Cheatsheet: \href{https://stanford.edu/~shervine/l/vi/teaching/cs-230/cheatsheet-convolutional-neural-networks/}{Stanford CS230 CNN Cheatsheet}
     \item \textbf{The SIFT-BoVW method and feature visualization} \\
     Yong Hao, Chengxiang Zhang, Xiyan Li. \\
     Article / Figure: \href{https://www.researchgate.net/figure/The-SIFT-BoVW-method-and-feature-visualization_fig8_372275637}{ResearchGate Figure Link}
