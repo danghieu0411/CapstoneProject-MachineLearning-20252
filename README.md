@@ -936,7 +936,6 @@ Based on the recall rates and support size:
 
 The ResNet-18 model achieved extremely high precision and recall, with only 89 misclassified samples out of 2,500.
 
-![ResNet Test Loss and Accuracy](report/resnet_test_loss_acc.png)
 ![ResNet Confusion Matrix](report/resnet_confusion_matrix.png)
 
 #### 5.5. Conclusion
