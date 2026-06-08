@@ -1002,4 +1002,8 @@ While the ResNet-18 model achieved outstanding generalization, several areas rem
 4. **Convolutional Neural Networks Cheatsheet** (Bản dịch tiếng Việt)
    * Shervine Amidi, Afshine Amidi, Stanford CS230.
    * Cheatsheet: [Stanford CS230 CNN Cheatsheet](https://stanford.edu/%7Eshervine/l/vi/teaching/cs-230/cheatsheet-convolutional-neural-networks/)
+5. **The SIFT-BoVW method and feature visualization**
+   * Yong Hao, Chengxiang Zhang, Xiyan Li.
+   * Article / Figure: [ResearchGate Figure Link](https://www.researchgate.net/figure/The-SIFT-BoVW-method-and-feature-visualization_fig8_372275637)
+
 
