@@ -897,6 +897,9 @@ The structural properties of the model are outlined below:
 *   **Loss Function**: Cross-Entropy Loss.
 *   **Batch Size**: 64.
 *   **Epochs**: 20.
+*   **Learning Rate Scheduler**: `ReduceLROnPlateau` monitoring validation loss with a decay factor of 0.1 (`factor=0.1`) and patience of 2 epochs (`patience=2`).
+*   **Early Stopping**: Stops training if validation loss does not improve for 5 consecutive epochs (`patience=5`).
+*   **Model Checkpointing**: The best model checkpoint is saved based on the lowest validation loss (`best_model_temp.pth`) and restored at the end of training.
 *   **Data Splits**: The dataset was partitioned into **20,000 training images**, **2,500 validation images**, and **2,500 test images**.
 *   **Augmentation Pipeline**: Train: resize ($256 \times 256$), crop ($224 \times 224$), horizontal flip, rotation ($\pm 15^\circ$), and color jitter (brightness, contrast). Validation/Test: resize ($224 \times 224$) and normalization.
 
