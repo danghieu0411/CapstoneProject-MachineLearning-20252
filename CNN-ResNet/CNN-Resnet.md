@@ -5,12 +5,12 @@
     - Early Layers: Learn basic, low-level structural elements such as lines, edges, and contrast boundaries.
     - Intermediate Layers: Form mid-level features by combining lower-level primitives into distinct object parts 
     - Deep Structural Layers: Aggregate part-based representations to high-level concepts.
-- $\Rightarrow$ Theoretical, Increasing network depth enriches the model's capacity to extract hierarchical features, leading to a more profound and comprehensive understanding of image .
+- => Theoretical, Increasing network depth enriches the model's capacity to extract hierarchical features, leading to a more profound and comprehensive understanding of image .
 
 ## Problem of deep CNN 
 ### Vanishing gradient 
 - During backpropagation, the loss signal is propagated from the output layer back to the initial layers via the chain rule. This mathematically translates into a sequence of continuous matrix multiplications involving the weights and activation function derivatives.
-- Consequence: When these derivative values are bounded below $1.0$ (e.g., when using classic activations like Sigmoid/Tanh), multiplying them continuously across dozens of layers causes the gradient magnitude to decrease exponentially. The gradients may approach zero by the time they reach the early layers => the initial layers fail to update their weights .
+- Consequence: When these derivative values are bounded below 1.0 (e.g., when using classic activations like Sigmoid/Tanh), multiplying them continuously across dozens of layers causes the gradient magnitude to decrease exponentially. The gradients may approach zero by the time they reach the early layers => the initial layers fail to update their weights .
 - In our previous CNN model, we use Batch Normalization and ReLU activations between the convolutional layers; therefore, it is inherently robust against the vanishing gradient problem.
 ### Degradation 
 - When continuing to increase the network depth past a threshold limit, the system's accuracy begins to saturate and then degrades very rapidly.
@@ -28,49 +28,49 @@
  
 - Structure of a residual block is like this : 
 ![Ảnh minh họa](Anh2.png)
-- Output feature maps of block : $y =F(x,\{W_i\}) +x$
+- Output feature maps of block : **y = F(x, {W_i}) + x**
 - Where :
-    - $x$ is input feature maps of block 
-    - $F(x,\{W_i\})$ represent the transformation of x through convolution layers 
+    - *x* is input feature maps of block 
+    - *F*(*x*, {*W_i*}) represent the transformation of x through convolution layers 
 
 ## Operation Principle 
-- The operating principle of ResNet is based on the fact that instead of directly learning the mapping function $H(x)$, the model will learn a residual function $F(x) = H(x) - x$. After that, the output of the model will be:
+- The operating principle of ResNet is based on the fact that instead of directly learning the mapping function *H*(*x*), the model will learn a residual function *F*(*x*) = *H*(*x*) - *x*. After that, the output of the model will be:
 
-$$H(x) = F(x) + x$$
+> **H(x) = F(x) + x**
 
 ### Key Advantages Compared to CNN
 #### Solving the Degradation Phenomenon and the Depth Problem
 
-- By using the formula $H(x) = F(x) + x$, the output already contains the baseline $x$, so the convolutional layers only need to learn the residual part $F(x)$. Visually, we only have to learn the features (the perturbations) that need to be added to the previous feature maps.
+- By using the formula *H*(*x*) = *F*(*x*) + *x*, the output already contains the baseline *x*, so the convolutional layers only need to learn the residual part *F*(*x*). Visually, we only have to learn the features (the perturbations) that need to be added to the previous feature maps.
 
-- This ensures that a deep network will never have a worse training error than a shallow network. If a layer is redundant (meaning that keeping the input intact is the most optimal way), the network will automatically drive the weights to make $F(x) = 0$ to become a straight-through propagation. Driving $F(x) = 0$ in a residual network is significantly easier than forcing $H(x) = x$ in a plain CNN .
+- This ensures that a deep network will never have a worse training error than a shallow network. If a layer is redundant (meaning that keeping the input intact is the most optimal way), the network will automatically drive the weights to make *F*(*x*) = 0 to become a straight-through propagation. Driving *F*(*x*) = 0 in a residual network is significantly easier than forcing *H*(*x*) = *x* in a plain CNN .
 
-- =>  Learning residual $F(x)$ instead of $H(x)$ making training process much faster => the network can be very deep( up to 1000 layers )
+- =>  Learning residual *F*(*x*) instead of *H*(*x*) making training process much faster => the network can be very deep( up to 1000 layers )
 
 #### Solving gradient problem 
 **Gradient in resnet ( in a Basic Residual Block )**
 - **Step 1: Compute gradient for weights in filter (to update)**
 
-$$\frac{\partial L}{\partial W} = \frac{\partial L}{\partial y} \times \frac{\partial y}{\partial W}$$
+> **∂L/∂W = (∂L/∂y) × (∂y/∂W)**
 
 - 
-    - where $\frac{\partial L}{\partial y}$ is the gradient of the loss function with respect to the output of this block that is backpropagation from the behind block 
-    - $y = F(x) +x$  and $\frac{\partial x}{\partial W} = 0 $, so : 
-    $$\frac{\partial L}{\partial W} = \frac{\partial L}{\partial y} \times \frac{\partial F(x)}{\partial W}$$
+    - where **∂L/∂y** is the gradient of the loss function with respect to the output of this block that is backpropagation from the behind block 
+    - *y* = *F*(*x*) + *x* and **∂x/∂W = 0**, so :
+    > **∂L/∂W = (∂L/∂y) × (∂F(x)/∂W)**
 
 -   - Like normal CNN 
 
 - **Step 2: Compute gradient for input x to pass to the previous block**
 
-$$\frac{\partial L}{\partial x} = \frac{\partial L}{\partial y} \times \frac{\partial y}{\partial x}$$
--   - Cause $y = F(x) +x$ , then :
-$$\frac{\partial L}{\partial x} = \frac{\partial L}{\partial y} \times \left( \frac{\partial F(x)}{\partial x} + 1 \right) = \left( \frac{\partial L}{\partial y} \times \frac{\partial F(x)}{\partial x} \right) + \frac{\partial L}{\partial y}$$
+> **∂L/∂x = (∂L/∂y) × (∂y/∂x)**
+-   - Cause *y* = *F*(*x*) + *x*, then :
+> **∂L/∂x = (∂L/∂y) × (∂F(x)/∂x + 1) = ((∂L/∂y) × (∂F(x)/∂x)) + ∂L/∂y**
 
 
 
-$\Rightarrow$ The difference is from step 2: even in the worst-case scenario—where all convolutional layers in Branch 1 have a derivative of zero ($\frac{\partial F(x)}{\partial x} = 0$)—the error propagation equation still preserves the remaining term:
+→ The difference is from step 2: even in the worst-case scenario—where all convolutional layers in Branch 1 have a derivative of zero (**∂F(x)/∂x = 0**)—the error propagation equation still preserves the remaining term:
 
-$$\frac{\partial L}{\partial x} = 0 + \frac{\partial L}{\partial y} = \frac{\partial L}{\partial y}$$
+> **∂L/∂x = 0 + ∂L/∂y = ∂L/∂y**
 
 => The gradient can't be down to 0 in back way 
 
@@ -89,21 +89,21 @@ $$\frac{\partial L}{\partial x} = 0 + \frac{\partial L}{\partial y} = \frac{\par
     - stride of first conv layer (the second is 1)
 
 - These hyperparamaters define the size , number of feature maps go through the network ( stride >1 can reduce the size of feature map)
-- The size of $x$ (number of feature maps , size of feature map) need to be the same as $F(x)$ 
-    - If the input $x$ has difference size with $F(x)$ , we need to process $x$ througn an downsample (with 1x1 conv to change the size of $x$)
+- The size of *x* (number of feature maps , size of feature map) need to be the same as *F*(*x*) 
+    - If the input *x* has difference size with *F*(*x*), we need to process *x* through a downsample (with 1x1 conv to change the size of *x*)
 
 ## ResNet 18 structure
 
 ![Ảnh minh họa](Anh5.png)
 
-| Layer Name | Internal Block Structure | Input Dimension (Size In) | Output Dimension (Size Out) | Input Channels ($C_{\text{in}}$) | Output Channels ($C_{\text{out}}$) | Downsample in Shortcut? |
+| Layer Name | Internal Block Structure | Input Dimension (Size In) | Output Dimension (Size Out) | Input Channels (*C*_in) | Output Channels (*C*_out) | Downsample in Shortcut? |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Layer 0** (Stem) | Conv $7\times7$ (Stride 2) $\rightarrow$ MaxPool $3\times3$ (Stride 2) | $224 \times 224$ | $56 \times 56$ | 3 (RGB) | 64 | No (Plain Stem) |
-| **Layer 1** | $2 \times$ `BasicBlock` (Each with $2 \times$ Conv $3\times3$) | $56 \times 56$ | $56 \times 56$ | 64 | 64 | **No** (Identity Mapping) |
-| **Layer 2** | $2 \times$ `BasicBlock` (Each with $2 \times$ Conv $3\times3$) | $56 \times 56$ | $28 \times 28$ | 64 | 128 | **Yes** (Killed via Conv $1\times1$ at Block 1) |
-| **Layer 3** | $2 \times$ `BasicBlock` (Each with $2 \times$ Conv $3\times3$) | $28 \times 28$ | $14 \times 14$ | 128 | 256 | **Yes** (Killed via Conv $1\times1$ at Block 1) |
-| **Layer 4** | $2 \times$ `BasicBlock` (Each with $2 \times$ Conv $3\times3$) | $14 \times 14$ | $7 \times 7$ | 256 | 512 | **Yes** (Killed via Conv $1\times1$ at Block 1) |
-| **Output Block**| Global Average Pooling $\rightarrow$ Flatten $\rightarrow$ Fully Connected (FC) | $7 \times 7$ | Flattened Vector | 512 | `num_classes` 2 |
+| **Layer 0** (Stem) | Conv 7×7 (Stride 2) → MaxPool 3×3 (Stride 2) | 224 × 224 | 56 × 56 | 3 (RGB) | 64 | No (Plain Stem) |
+| **Layer 1** | 2 × `BasicBlock` (Each with 2 × Conv 3×3) | 56 × 56 | 56 × 56 | 64 | 64 | **No** (Identity Mapping) |
+| **Layer 2** | 2 × `BasicBlock` (Each with 2 × Conv 3×3) | 56 × 56 | 28 × 28 | 64 | 128 | **Yes** (Killed via Conv 1×1 at Block 1) |
+| **Layer 3** | 2 × `BasicBlock` (Each with 2 × Conv 3×3) | 28 × 28 | 14 × 14 | 128 | 256 | **Yes** (Killed via Conv 1×1 at Block 1) |
+| **Layer 4** | 2 × `BasicBlock` (Each with 2 × Conv 3×3) | 14 × 14 | 7 × 7 | 256 | 512 | **Yes** (Killed via Conv 1×1 at Block 1) |
+| **Output Block**| Global Average Pooling → Flatten → Fully Connected (FC) | 7 × 7 | Flattened Vector | 512 | `num_classes` 2 |
 
 
 
