@@ -45,21 +45,19 @@
 \begin{center}
     {\large \textbf{HANOI UNIVERSITY OF SCIENCE AND TECHNOLOGY}} \\
     {\large \textbf{SCHOOL OF INFORMATION AND COMMUNICATION TECHNOLOGY}} \\
-    \vskip 1cm
-    \includegraphics[width=0.6\textwidth]{report/logo-soict.png} \\
-    \vskip 1.5cm
+    \vskip 2.5cm
     
     {\Huge \textbf{PROJECT REPORT}} \\
     \vskip 0.5cm
-    {\Large \textbf{MACHINE LEARNING}} \\
+    {\Large \textbf{CAT AND DOG IMAGE CLASSIFICATION}} \\
     
-    \vskip 1.5cm
+    \vskip 2.5cm
     \begin{tabular}{l}
-        \textbf{Course:} Applied Statistics and Experimental Design. \\
+        \textbf{Course:} Machine Learning \\
         \textbf{Lecturer:} PGS. TS. Thân Quang Khoát
     \end{tabular}
     
-    \vskip 1.5cm
+    \vskip 2.5cm
     \begin{tabular}{llc}
         \toprule
         & \textbf{Authors} & \textbf{Student ID} \\
