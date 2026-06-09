@@ -39,13 +39,46 @@
 }
 \lstset{style=mystyle}
 
-\title{\textbf{Capstone Project: Cat and Dog Image Classification}}
-\author{\textbf{Machine Learning Project Report}}
-\date{\today}
-
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+\begin{center}
+    {\large \textbf{HANOI UNIVERSITY OF SCIENCE AND TECHNOLOGY}} \\
+    {\large \textbf{SCHOOL OF INFORMATION AND COMMUNICATION TECHNOLOGY}} \\
+    \vskip 1cm
+    \includegraphics[width=0.6\textwidth]{report/logo-soict.png} \\
+    \vskip 1.5cm
+    
+    {\Huge \textbf{PROJECT REPORT}} \\
+    \vskip 0.5cm
+    {\Large \textbf{CAT AND DOG IMAGE CLASSIFICATION}} \\
+    
+    \vskip 1.5cm
+    \begin{tabular}{l}
+        \textbf{Course:} Machine Learning \\
+        \textbf{Lecturer:} Assoc. Prof. Dr. Thân Quang Khoát
+    \end{tabular}
+    
+    \vskip 1.5cm
+    \textbf{Authors} \\
+    \vskip 0.2cm
+    \begin{tabular}{lc}
+        \toprule
+        \textbf{Full Name} & \textbf{Student ID} \\
+        \midrule
+        Lê Đăng Hiếu & 202416796 \\
+        Lê Thế Nhật Anh & 202416770 \\
+        Phạm Trọng Bình & 202416781 \\
+        Phạm Đức Hoàng & 202416696 \\
+        Nguyễn Trung Thông & 202416829 \\
+        Nguyễn Văn Đức Duy & 202416791 \\
+        \bottomrule
+    \end{tabular}
+    
+    \vfill
+    {\large June, 2026}
+\end{center}
+\end{titlepage}
 
 \tableofcontents
 \newpage
