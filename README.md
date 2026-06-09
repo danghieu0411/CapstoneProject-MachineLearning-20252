@@ -51,32 +51,30 @@
     
     {\Huge \textbf{PROJECT REPORT}} \\
     \vskip 0.5cm
-    {\Large \textbf{CAT AND DOG IMAGE CLASSIFICATION}} \\
+    {\Large \textbf{MACHINE LEARNING}} \\
     
     \vskip 1.5cm
     \begin{tabular}{l}
-        \textbf{Course:} Machine Learning \\
-        \textbf{Lecturer:} Assoc. Prof. Dr. Thân Quang Khoát
+        \textbf{Course:} Applied Statistics and Experimental Design. \\
+        \textbf{Lecturer:} PGS. TS. Thân Quang Khoát
     \end{tabular}
     
     \vskip 1.5cm
-    \textbf{Authors} \\
-    \vskip 0.2cm
-    \begin{tabular}{lc}
+    \begin{tabular}{llc}
         \toprule
-        \textbf{Full Name} & \textbf{Student ID} \\
+        & \textbf{Authors} & \textbf{Student ID} \\
         \midrule
-        Lê Đăng Hiếu & 202416796 \\
-        Lê Thế Nhật Anh & 202416770 \\
-        Phạm Trọng Bình & 202416781 \\
-        Phạm Đức Hoàng & 202416696 \\
-        Nguyễn Trung Thông & 202416829 \\
-        Nguyễn Văn Đức Duy & 202416791 \\
+        1. & Lê Đăng Hiếu & 202416796 \\
+        2. & Lê Thế Nhật Anh & 202416770 \\
+        3. & Phạm Trọng Bình & 202416781 \\
+        4. & Phạm Đức Hoàng & 202416696 \\
+        5. & Nguyễn Trung Thông & 202416829 \\
+        6. & Nguyễn Văn Đức Duy & 202416791 \\
         \bottomrule
     \end{tabular}
     
     \vfill
-    {\large June, 2026}
+    {\large June, 2024}
 \end{center}
 \end{titlepage}
 
