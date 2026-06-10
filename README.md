@@ -789,12 +789,49 @@ During training, the model processed a split of \textbf{20,000 training images},
     \item The best model saved at epoch 25 (\texttt{best\_ann\_model.keras}) was used for final evaluation.
 \end{itemize}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{report/ann_training_epochs.png}
-    \caption{ANN Training Epochs}
-    \label{fig:ann_training_epochs}
-\end{figure}
+\begin{table}[H]
+\centering
+\caption{ANN Model Training Progress across 30 Epochs}
+\label{tab:ann_training_progress}
+\begin{small}
+\begin{tabular}{ccccccc}
+\toprule
+Epoch & Training Loss & Training Acc & Validation Loss & Validation Acc & Learning Rate & Note \\
+\midrule
+1 & 0.8860 & 54.31\% & 0.8265 & 60.60\% & 1.00e-04 & \textbf{Improved} \\
+2 & 0.8097 & 57.58\% & 0.7812 & 60.48\% & 1.00e-04 &  \\
+3 & 0.7735 & 59.07\% & 0.7496 & 61.04\% & 1.00e-04 & \textbf{Improved} \\
+4 & 0.7463 & 59.47\% & 0.7332 & 60.08\% & 1.00e-04 &  \\
+5 & 0.7259 & 59.86\% & 0.7068 & 62.52\% & 1.00e-04 & \textbf{Improved} \\
+6 & 0.7108 & 59.90\% & 0.6935 & 62.88\% & 1.00e-04 & \textbf{Improved} \\
+7 & 0.6957 & 60.44\% & 0.6818 & 61.64\% & 1.00e-04 &  \\
+8 & 0.6866 & 60.08\% & 0.6794 & 60.08\% & 1.00e-04 &  \\
+9 & 0.6762 & 60.66\% & 0.6626 & 63.12\% & 1.00e-04 & \textbf{Improved} \\
+10 & 0.6691 & 60.72\% & 0.6587 & 61.64\% & 1.00e-04 &  \\
+11 & 0.6671 & 60.54\% & 0.6589 & 63.36\% & 1.00e-04 & \textbf{Improved} \\
+12 & 0.6662 & 60.83\% & 0.6600 & 61.36\% & 1.00e-04 & LR Decay \\
+13 & 0.6567 & 61.80\% & 0.6492 & 62.96\% & 5.00e-05 &  \\
+14 & 0.6576 & 61.91\% & 0.6463 & 63.64\% & 5.00e-05 & \textbf{Improved} \\
+15 & 0.6559 & 61.91\% & 0.6470 & 64.16\% & 5.00e-05 & \textbf{Improved} \\
+16 & 0.6551 & 61.61\% & 0.6452 & 64.36\% & 5.00e-05 & \textbf{Improved} \\
+17 & 0.6548 & 61.76\% & 0.6438 & 64.32\% & 5.00e-05 &  \\
+18 & 0.6530 & 61.96\% & 0.6477 & 63.68\% & 5.00e-05 &  \\
+19 & 0.6536 & 62.37\% & 0.6495 & 62.20\% & 5.00e-05 & LR Decay \\
+20 & 0.6505 & 62.45\% & 0.6404 & 64.96\% & 2.50e-05 & \textbf{Improved} \\
+21 & 0.6495 & 62.38\% & 0.6406 & 64.60\% & 2.50e-05 &  \\
+22 & 0.6485 & 62.49\% & 0.6424 & 64.08\% & 2.50e-05 & LR Decay \\
+23 & 0.6460 & 63.42\% & 0.6406 & 64.52\% & 1.25e-05 &  \\
+24 & 0.6472 & 62.78\% & 0.6381 & 64.72\% & 1.25e-05 &  \\
+25 & 0.6481 & 62.83\% & 0.6386 & 65.20\% & 1.25e-05 & \textbf{Improved} \\
+26 & 0.6469 & 62.84\% & 0.6389 & 65.16\% & 1.25e-05 & LR Decay \\
+27 & 0.6477 & 62.88\% & 0.6389 & 64.68\% & 6.25e-06 &  \\
+28 & 0.6463 & 63.38\% & 0.6388 & 64.60\% & 6.25e-06 & LR Decay \\
+29 & 0.6454 & 63.24\% & 0.6383 & 65.04\% & 3.13e-06 &  \\
+30 & 0.6466 & 63.13\% & 0.6389 & 65.04\% & 3.13e-06 & LR Decay \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{table}
 
 \begin{figure}[H]
     \centering
@@ -839,10 +876,8 @@ The model shows a slight bias towards classifying images as cats (predicting 1,3
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.45\textwidth]{report/ann_confusion_matrix.png}
-    \hfill
-    \includegraphics[width=0.45\textwidth]{report/ann_classification_metrics.png}
-    \caption{ANN Confusion Matrix (left) and Classification Metrics (right)}
+    \includegraphics[width=0.6\textwidth]{report/ann_confusion_matrix.png}
+    \caption{ANN Confusion Matrix}
     \label{fig:ann_results}
 \end{figure}
 
@@ -1084,10 +1119,8 @@ The network displays a balanced classification performance with no significant b
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.45\textwidth]{report/cnn_confusion_matrix.png}
-    \hfill
-    \includegraphics[width=0.45\textwidth]{report/cnn_classification_metrics.png}
-    \caption{CNN Confusion Matrix (left) and Classification Metrics (right)}
+    \includegraphics[width=0.6\textwidth]{report/cnn_confusion_matrix.png}
+    \caption{CNN Confusion Matrix}
     \label{fig:cnn_results}
 \end{figure}
 
